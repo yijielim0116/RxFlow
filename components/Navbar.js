@@ -29,7 +29,7 @@ export default function Navbar({ user }) {
 
           <Link
             href="/dashboard"
-            className="text-2xl font-bold text-slate-900"
+            className="text-2xl font-bold text-slate-900 hover:text-sky-700 transition"
           >
             RxFlow
           </Link>
@@ -42,13 +42,38 @@ export default function Navbar({ user }) {
 
           {user && (
 
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-sm font-semibold shadow-sm">
+            <Link
+              href="/profile"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-sm font-semibold shadow-sm hover:bg-slate-100 hover:border-slate-300 transition"
+            >
 
-              <User size={16} />
+              {/* Avatar */}
 
-              {user.name}
+              <div className="w-8 h-8 rounded-full bg-slate-300 overflow-hidden flex items-center justify-center">
 
-            </div>
+                {user.avatar ? (
+
+                  <img
+                    src={user.avatar}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+
+                ) : (
+
+                  <User size={16} className="text-slate-600"/>
+
+                )}
+
+              </div>
+
+              {/* Name */}
+
+              <span>
+                {user.name?.split(" ")[0]}
+              </span>
+
+            </Link>
 
           )}
 
