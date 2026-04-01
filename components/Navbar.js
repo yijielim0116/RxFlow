@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
+import Image from "next/image";
 
 export default function Navbar({ user }) {
 
@@ -21,20 +22,32 @@ export default function Navbar({ user }) {
 
         {/* Left */}
 
-        <div>
+        <Link href="/dashboard" className="flex items-center gap-3">
 
-          <p className="text-sm font-semibold uppercase tracking-wide text-sky-700">
-            Aspect Line
-          </p>
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100">
 
-          <Link
-            href="/dashboard"
-            className="text-2xl font-bold text-slate-900 hover:text-sky-700 transition"
-          >
-            RxFlow
-          </Link>
+            <Image
+              src="/logo.png"   // put your icon in public folder
+              alt="RxFlow"
+              width={28}
+              height={28}
+            />
 
-        </div>
+          </div>
+
+          <div className="flex flex-col leading-tight">
+
+            <span className="text-xs font-semibold uppercase tracking-wide text-sky-700">
+              Aspectline
+            </span>
+
+            <span className="text-xl font-bold text-slate-900 hover:text-sky-700 transition">
+              RxFlow
+            </span>
+
+          </div>
+
+        </Link>
 
         {/* Right */}
 
@@ -46,8 +59,6 @@ export default function Navbar({ user }) {
               href="/profile"
               className="flex items-center gap-3 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 text-sm font-semibold shadow-sm hover:bg-slate-100 hover:border-slate-300 transition"
             >
-
-              {/* Avatar */}
 
               <div className="w-8 h-8 rounded-full bg-slate-300 overflow-hidden flex items-center justify-center">
 
@@ -66,8 +77,6 @@ export default function Navbar({ user }) {
                 )}
 
               </div>
-
-              {/* Name */}
 
               <span>
                 {user.name?.split(" ")[0]}

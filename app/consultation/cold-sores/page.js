@@ -12,6 +12,7 @@ export default function ColdSoresConsultation() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const today = new Date().toISOString().split("T")[0];
 
   const [formData, setFormData] = useState({
     patientName: "",
@@ -82,7 +83,7 @@ export default function ColdSoresConsultation() {
     dispenseInThisPharmacy: false,
     consentSignature: "",
     guardianConsentSignature: "",
-    consentDate: "",
+    consentDate: today,
 
     consultationOutcome: "",
     outcomeReferral: false,
@@ -97,7 +98,7 @@ export default function ColdSoresConsultation() {
     pharmacistRegistration: "",
     pharmacyName: "",
     pharmacistSignature: "",
-    pharmacistDate: "",
+    pharmacistDate: today,
     recordCompleted: false,
   });
 
@@ -446,6 +447,31 @@ export default function ColdSoresConsultation() {
     setStep((prev) => prev - 1);
   };
 
+    const handleSaveConsultation = () => {
+    const existingConsultations =
+      JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
+
+    const newConsultation = {
+      id: Date.now(),
+      type: "Cold Sores Consultation",
+      createdAt: new Date().toISOString(),
+      patientName: formData.patientName,
+      pharmacistName: formData.pharmacistName,
+      data: formData,
+    };
+
+    localStorage.setItem(
+      "rxflowConsultations",
+      JSON.stringify([...existingConsultations, newConsultation])
+    );
+
+    alert("Consultation saved successfully.");
+  };
+
+  const handlePrintConsultation = () => {
+    window.print();
+  };
+
   return (
     <main className="min-h-screen bg-slate-100">
       <Navbar user={user} />
@@ -533,6 +559,12 @@ export default function ColdSoresConsultation() {
             step >= 9 ? "font-semibold text-sky-700" : "text-slate-400"}
           >
             9 Pharmacist Record
+          </div>
+
+          <div className={
+            step >= 10 ? "font-semibold text-sky-700" : "text-slate-400"}
+          >
+            10 Overview
           </div>
         </div>
 
@@ -2147,12 +2179,6 @@ export default function ColdSoresConsultation() {
                   <p className="mt-1 text-sm text-red-500">{errors.recordCompleted}</p>
                 )}
               </div>
-
-              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5">
-                <p className="text-sm font-medium text-emerald-800">
-                  Consultation form completed. Next, you can add save, print, export PDF, and patient history features.
-                </p>
-              </div>
             </div>
 
             <div className="mt-8 flex justify-between">
@@ -2166,10 +2192,155 @@ export default function ColdSoresConsultation() {
 
               <button
                 type="button"
-                className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
+                onClick={nextStep}
+                className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
               >
-                Complete Consultation
+                Next Step
               </button>
+            </div>
+          </div>
+        )}
+
+                {step === 10 && (
+          <div>
+            <h2 className="mb-6 text-2xl font-semibold text-slate-900">
+              Consultation Overview
+            </h2>
+
+            <div className="space-y-6">
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Patient Details
+                </h3>
+
+                <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                  <p><span className="font-medium">Patient Name:</span> {formData.patientName || "-"}</p>
+                  <p><span className="font-medium">Contact:</span> {formData.contact || "-"}</p>
+                  <p><span className="font-medium">Address:</span> {formData.address || "-"}</p>
+                  <p><span className="font-medium">Eircode:</span> {formData.eircode || "-"}</p>
+                  <p><span className="font-medium">PPSN:</span> {formData.ppsn || "-"}</p>
+                  <p><span className="font-medium">Scheme Number:</span> {formData.schemeNumber || "-"}</p>
+                  <p><span className="font-medium">Scheme Type:</span> {formData.schemeType || "-"}</p>
+                  <p><span className="font-medium">DOB:</span> {formData.dob || "-"}</p>
+                  <p><span className="font-medium">Age:</span> {age || "-"}</p>
+                  <p><span className="font-medium">Sex:</span> {formData.sex || "-"}</p>
+                  <p><span className="font-medium">GP Name:</span> {formData.gpName || "-"}</p>
+                  <p><span className="font-medium">GP Contact:</span> {formData.gpContact || "-"}</p>
+                  <p className="md:col-span-2"><span className="font-medium">GP Address:</span> {formData.gpAddress || "-"}</p>
+                  {isUnder16 && (
+                    <p className="md:col-span-2">
+                      <span className="font-medium">Guardian:</span> {formData.guardian || "-"}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Presenting Complaint
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <p><span className="font-medium">Symptoms:</span> {formData.symptoms || "-"}</p>
+                  <p><span className="font-medium">Medication Tried:</span> {formData.medicationTried || "-"}</p>
+                  <p><span className="font-medium">Medication List:</span> {formData.medicationList || "-"}</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Medical History
+                </h3>
+
+                <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                  <p><span className="font-medium">Medical Conditions:</span> {formData.medicalConditions || "-"}</p>
+                  <p><span className="font-medium">Pregnant:</span> {formData.pregnant ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Breastfeeding:</span> {formData.breastfeeding ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Renal Impairment:</span> {formData.renalImpairment || "-"}</p>
+                  <p><span className="font-medium">Hepatic Impairment:</span> {formData.hepaticImpairment || "-"}</p>
+                  <p><span className="font-medium">Allergy Status:</span> {formData.allergyStatus || "-"}</p>
+                  <p className="md:col-span-2"><span className="font-medium">Existing Medication:</span> {formData.existingMedication || "-"}</p>
+                  <p><span className="font-medium">Antimicrobial Resistance:</span> {formData.antimicrobialResistance || "-"}</p>
+                  <p className="md:col-span-2"><span className="font-medium">Resistance Details:</span> {formData.resistanceDetails || "-"}</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Red Flags / Symptoms / Treatment
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <p><span className="font-medium">Red Flag Present:</span> {formData.redFlagPresent || "-"}</p>
+                  <p><span className="font-medium">Referral Reason:</span> {formData.referralReason || "-"}</p>
+                  <p><span className="font-medium">Symptoms Typical:</span> {formData.symptomsTypical || "-"}</p>
+                  <p><span className="font-medium">Symptoms Referral Reason:</span> {formData.symptomsReferralReason || "-"}</p>
+                  <p><span className="font-medium">Meets Inclusion Criteria:</span> {formData.meetsInclusionCriteria ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Proceed With Prescribing:</span> {formData.proceedWithPrescribing ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Advice And Counselling:</span> {formData.adviceAndCounselling ? "Yes" : "No"}</p>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  Declaration / Outcome / Pharmacist Record
+                </h3>
+
+                <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                  <p><span className="font-medium">Consent Signature:</span> {formData.consentSignature || "-"}</p>
+                  <p><span className="font-medium">Consent Date:</span> {formData.consentDate || "-"}</p>
+                  {isUnder16 && (
+                    <p className="md:col-span-2">
+                      <span className="font-medium">Guardian Consent Signature:</span> {formData.guardianConsentSignature || "-"}
+                    </p>
+                  )}
+                  <p><span className="font-medium">Consultation Outcome:</span> {formData.consultationOutcome || "-"}</p>
+                  <p className="md:col-span-2"><span className="font-medium">Outcome Details:</span> {formData.outcomeDetails || "-"}</p>
+                  <p><span className="font-medium">Follow-up Advice Given:</span> {formData.followUpAdviceGiven ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Safety Netting Given:</span> {formData.safetyNettingGiven ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Pharmacist Name:</span> {formData.pharmacistName || "-"}</p>
+                  <p><span className="font-medium">Registration Number:</span> {formData.pharmacistRegistration || "-"}</p>
+                  <p><span className="font-medium">Pharmacy Name:</span> {formData.pharmacyName || "-"}</p>
+                  <p><span className="font-medium">Pharmacist Signature:</span> {formData.pharmacistSignature || "-"}</p>
+                  <p><span className="font-medium">Pharmacist Date:</span> {formData.pharmacistDate || "-"}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-wrap justify-between gap-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                Back
+              </button>
+
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleSaveConsultation}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                >
+                  Save
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handlePrintConsultation}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Print
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push("/consultation")}
+                  className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
+                >
+                  Finish
+                </button>
+              </div>
             </div>
           </div>
         )}
