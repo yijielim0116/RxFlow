@@ -38,7 +38,7 @@ export default function Navbar({ user }) {
           <div className="flex flex-col leading-tight">
 
             <span className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-              Aspectline
+              Aspect Line
             </span>
 
             <span className="text-xl font-bold text-slate-900 hover:text-sky-700 transition">
