@@ -139,13 +139,22 @@ export default function ColdSoresConsultation() {
   }
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const { name, value, type, checked } = e.target;
 
-    setFormData((prev) => ({
+  setFormData((prev) => {
+    const updated = {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+    };
+
+    if (name === "sex" && value === "Male") {
+      updated.pregnant = false;
+      updated.breastfeeding = false;
+    }
+
+    return updated;
+  });
+};
 
   const getInputClass = (fieldName) =>
     `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${
@@ -933,27 +942,29 @@ export default function ColdSoresConsultation() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="pregnant"
-                      checked={formData.pregnant}
-                      onChange={handleChange}
-                    />
-                    Pregnant or suspected pregnancy
-                  </label>
+                {formData.sex === "Female" && (
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="pregnant"
+                        checked={formData.pregnant}
+                        onChange={handleChange}
+                      />
+                      Pregnant or suspected pregnancy
+                    </label>
 
-                  <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="breastfeeding"
-                      checked={formData.breastfeeding}
-                      onChange={handleChange}
-                    />
-                    Breastfeeding
-                  </label>
-                </div>
+                    <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="breastfeeding"
+                        checked={formData.breastfeeding}
+                        onChange={handleChange}
+                      />
+                      Breastfeeding
+                    </label>
+                  </div>
+                )}
 
                 {formData.pregnant && (
                   <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">

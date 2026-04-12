@@ -76,7 +76,19 @@ export default function DashboardPage() {
             <h3 className="text-lg font-semibold text-slate-900">
               Recent Consultations
             </h3>
-            <p className="mt-2 text-sm text-slate-500">Coming soon</p>
+
+            <p className="mt-2 text-sm text-slate-600">
+              View saved consultation records.
+            </p>
+
+            <div className="mt-4">
+              <Link
+                href="/recent-consultations"
+                className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-medium text-white hover:bg-sky-800 transition"
+              >
+                Open
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
