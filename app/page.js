@@ -21,7 +21,7 @@ export default function Home() {
 
             <div className="leading-tight">
               <p className="text-xs font-semibold uppercase tracking-wide text-sky-700">
-                Aspectline
+                Aspect line
               </p>
 
               <h1 className="text-xl font-bold text-slate-900">RxFlow</h1>
@@ -111,18 +111,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Future Features Row */}
         <section className="mt-8 grid gap-6 md:grid-cols-3">
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">
               Recent Consultations
             </h3>
 
-            <p className="mt-2 text-sm text-slate-500">
-              Coming in later versions
+            <p className="mt-2 text-sm text-slate-600">
+              View saved consultation records.
             </p>
+
+            <div className="mt-4">
+              <Link
+                href="/recent-consultations"
+                className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-medium text-white hover:bg-sky-800 transition"
+              >
+                Open
+              </Link>
+            </div>
           </div>
 
+          {/* Future Features Row */} 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">
               Compliance Reports

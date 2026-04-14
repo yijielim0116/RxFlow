@@ -85,21 +85,27 @@ export default function ColdSoresConsultation() {
     guardianConsentSignature: "",
     consentDate: today,
 
-    consultationOutcome: "",
-    outcomeReferral: false,
-    outcomePrescriptionIssued: false,
-    outcomeSelfCareAdvice: false,
-    outcomeNoTreatment: false,
-    outcomeDetails: "",
-    followUpAdviceGiven: false,
-    safetyNettingGiven: false,
+    consultationOutcomeReferral: false,
+    consultationOutcomeSelfCare: false,
+    consultationOutcomeOTCProduct: false,
+    consultationOutcomePOMSupplied: false,
+
+    declinedTreatment: false,
+    declinedTreatmentReason: "",
+
+    referredToAE: false,
+    referredToGP: false,
+    referredToOther: false,
+    referredToOtherDetails: "",
+
+    prescribedAciclovirCream: false,
 
     pharmacistName: "",
-    pharmacistRegistration: "",
-    pharmacyName: "",
+    psiNumber: "",
+    pharmacyAddress: "",
+    pharmacyEircode: "",
     pharmacistSignature: "",
     pharmacistDate: today,
-    recordCompleted: false,
   });
 
   useEffect(() => {
@@ -175,9 +181,6 @@ export default function ColdSoresConsultation() {
     if (!formData.schemeType.trim()) newErrors.schemeType = "Required";
     if (!formData.dob) newErrors.dob = "Required";
     if (!formData.sex.trim()) newErrors.sex = "Required";
-    if (!formData.gpName.trim()) newErrors.gpName = "Required";
-    if (!formData.gpAddress.trim()) newErrors.gpAddress = "Required";
-    if (!formData.gpContact.trim()) newErrors.gpContact = "Required";
 
     if (isUnder16 && !formData.guardian.trim()) {
       newErrors.guardian = "Required for patients under 16";
@@ -341,29 +344,40 @@ export default function ColdSoresConsultation() {
   const validateStepEight = () => {
     const newErrors = {};
 
-    if (!formData.consultationOutcome.trim()) {
-      newErrors.consultationOutcome = "Please select an outcome";
+    if (
+      !formData.consultationOutcomeReferral &&
+      !formData.consultationOutcomeSelfCare &&
+      !formData.consultationOutcomeOTCProduct &&
+      !formData.consultationOutcomePOMSupplied
+    ) {
+      newErrors.consultationOutcome =
+        "Please select at least one consultation outcome";
+    }
+
+    if (formData.declinedTreatment && !formData.declinedTreatmentReason.trim()) {
+      newErrors.declinedTreatmentReason = "Please provide a reason";
+    }
+
+    if (formData.consultationOutcomeReferral) {
+      if (
+        !formData.referredToAE &&
+        !formData.referredToGP &&
+        !formData.referredToOther
+      ) {
+        newErrors.referredTo = "Please select where the patient was referred to";
+      }
+
+      if (formData.referredToOther && !formData.referredToOtherDetails.trim()) {
+        newErrors.referredToOtherDetails = "Please specify other referral destination";
+      }
     }
 
     if (
-      !formData.outcomeReferral &&
-      !formData.outcomePrescriptionIssued &&
-      !formData.outcomeSelfCareAdvice &&
-      !formData.outcomeNoTreatment
+      formData.consultationOutcomePOMSupplied &&
+      !formData.prescribedAciclovirCream
     ) {
-      newErrors.outcomeType = "Please select at least one outcome type";
-    }
-
-    if (!formData.outcomeDetails.trim()) {
-      newErrors.outcomeDetails = "Please document the consultation outcome";
-    }
-
-    if (!formData.followUpAdviceGiven) {
-      newErrors.followUpAdviceGiven = "Please confirm follow-up advice";
-    }
-
-    if (!formData.safetyNettingGiven) {
-      newErrors.safetyNettingGiven = "Please confirm safety-netting advice";
+      newErrors.prescribedAciclovirCream =
+        "Please select the prescribed medicine";
     }
 
     return newErrors;
@@ -376,12 +390,16 @@ export default function ColdSoresConsultation() {
       newErrors.pharmacistName = "Pharmacist name is required";
     }
 
-    if (!formData.pharmacistRegistration.trim()) {
-      newErrors.pharmacistRegistration = "Registration number is required";
+    if (!formData.psiNumber.trim()) {
+      newErrors.psiNumber = "PSI number is required";
     }
 
-    if (!formData.pharmacyName.trim()) {
-      newErrors.pharmacyName = "Pharmacy name is required";
+    if (!formData.pharmacyAddress.trim()) {
+      newErrors.pharmacyAddress = "Pharmacy address is required";
+    }
+
+    if (!formData.pharmacyEircode.trim()) {
+      newErrors.pharmacyEircode = "Eircode is required";
     }
 
     if (!formData.pharmacistSignature.trim()) {
@@ -392,90 +410,91 @@ export default function ColdSoresConsultation() {
       newErrors.pharmacistDate = "Date is required";
     }
 
-    if (!formData.recordCompleted) {
-      newErrors.recordCompleted = "Please confirm the record is complete";
-    }
-
     return newErrors;
   };
 
   const nextStep = () => {
-    let newErrors = {};
+  let newErrors = {};
 
-    if (step === 1) {
-      newErrors = validateStepOne();
-    }
+  if (step === 1) {
+    newErrors = validateStepOne();
+  }
 
-    if (step === 2) {
-      newErrors = validateStepTwo();
-    }
+  if (step === 2) {
+    newErrors = validateStepTwo();
+  }
 
-    if (step === 3) {
-      newErrors = validateStepThree();
-    }
+  if (step === 3) {
+    newErrors = validateStepThree();
+  }
 
-    if (step === 4) {
-      newErrors = validateStepFour();
-    }
+  if (step === 4) {
+    newErrors = validateStepFour();
+  }
 
-    if (step === 5) {
-      newErrors = validateStepFive();
-    }
+  if (step === 5) {
+    newErrors = validateStepFive();
+  }
 
-    if (step === 6) {
-      newErrors = validateStepSix();
-    }
+  if (step === 6) {
+    newErrors = validateStepSix();
+  }
 
-    if (step === 7) {
-      newErrors = validateStepSeven();
-    }
+  if (step === 7) {
+    newErrors = validateStepSeven();
+  }
 
-    if (step === 8) {
-      newErrors = validateStepEight();
-    }
+  if (step === 8) {
+    newErrors = validateStepEight();
+  }
 
-    if (step === 9) {
-      newErrors = validateStepNine();
-    }
+  if (step === 9) {
+    newErrors = validateStepNine();
+  }
 
-    setErrors(newErrors);
+  setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    return;
+  }
 
-    if (step === 4 && formData.redFlagPresent === "Yes") {
-      setStep(7);
-      return;
-    }
+  if (step === 4 && formData.redFlagPresent === "Yes") {
+    setStep(7);
+    return;
+  }
 
-    setStep((prev) => prev + 1);
+  setStep((prev) => prev + 1);
+};
+
+const prevStep = () => {
+  if (step === 7 && formData.redFlagPresent === "Yes") {
+    setStep(4);
+    return;
+  }
+
+  setStep((prev) => prev - 1);
+};
+
+    const handleSaveAndFinish = () => {
+  const existingConsultations =
+    JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
+
+  const newConsultation = {
+    id: Date.now(),
+    type: "Cold Sores Consultation",
+    createdAt: new Date().toISOString(),
+    patientName: formData.patientName,
+    pharmacistName: formData.pharmacistName,
+    data: formData,
   };
 
-  const prevStep = () => {
-    setStep((prev) => prev - 1);
-  };
+  localStorage.setItem(
+    "rxflowConsultations",
+    JSON.stringify([...existingConsultations, newConsultation])
+  );
 
-    const handleSaveConsultation = () => {
-    const existingConsultations =
-      JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
-
-    const newConsultation = {
-      id: Date.now(),
-      type: "Cold Sores Consultation",
-      createdAt: new Date().toISOString(),
-      patientName: formData.patientName,
-      pharmacistName: formData.pharmacistName,
-      data: formData,
-    };
-
-    localStorage.setItem(
-      "rxflowConsultations",
-      JSON.stringify([...existingConsultations, newConsultation])
-    );
-
-    alert("Consultation saved successfully.");
-  };
+  router.push("/recent-consultations");
+};
 
   const handlePrintConsultation = () => {
     window.print();
@@ -771,7 +790,7 @@ export default function ColdSoresConsultation() {
                 <div>
                   <input
                     name="gpName"
-                    placeholder="GP Name"
+                    placeholder="GP Name (Optional)"
                     value={formData.gpName}
                     onChange={handleChange}
                     className={getInputClass("gpName")}
@@ -786,7 +805,7 @@ export default function ColdSoresConsultation() {
                 <div>
                   <input
                     name="gpContact"
-                    placeholder="GP Contact Number"
+                    placeholder="GP Contact Number (Optional)"
                     value={formData.gpContact}
                     onChange={handleChange}
                     className={getInputClass("gpContact")}
@@ -801,7 +820,7 @@ export default function ColdSoresConsultation() {
                 <div className="md:col-span-2">
                   <input
                     name="gpAddress"
-                    placeholder="GP Address"
+                    placeholder="GP Address (Optional)"
                     value={formData.gpAddress}
                     onChange={handleChange}
                     className={getInputClass("gpAddress")}
@@ -1141,8 +1160,8 @@ export default function ColdSoresConsultation() {
 
               <div className="space-y-8">
                 <div>
-                  <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                    4.1 Emergency Referral
+                  <h3 className="mb-3 text-lg font-semibold text-red-700">
+                    4.1 Criteria requiring EMERGENCY referral to hospital emergency department/contacting emergency services, as per 2.4.1 of Protocol.
                   </h3>
 
                   <label className="flex items-start gap-3 text-sm text-slate-700">
@@ -1161,8 +1180,8 @@ export default function ColdSoresConsultation() {
                 </div>
 
                 <div>
-                  <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                    4.2 Urgent Medical Assessment
+                  <h3 className="mb-3 text-lg font-semibold text-amber-700">
+                    4.2 Criteria requiring Urgent Medical Assessment (treating service/GP/GP out of hours/hospital emergency department),as per 2.4.2 of Protocol. If ANY of the following are present, then urgent medical assessment is required.
                   </h3>
 
                   <div className="space-y-3">
@@ -1204,8 +1223,8 @@ export default function ColdSoresConsultation() {
                 </div>
 
                 <div>
-                  <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                    4.3 Referral to GP or Other Relevant Medical Practitioner
+                  <h3 className="mb-3 text-lg font-semibold text-sky-700">
+                    4.3 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist permitted to give INITIAL LIMITED SUPPLY, as per 2.4.3 of protocol. If ANY of the following are present then referral is required and pharmacist prescribing is not permitted.
                   </h3>
 
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1300,8 +1319,12 @@ export default function ColdSoresConsultation() {
                 </div>
 
                 <div>
+                  <h3 className="mb-3 text-lg font-semibold text-emerald-900">
+                    4.4 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist permitted to give INITIAL LIMITED SUPPLY, as per 2.4.4 of Protocol.
+                  </h3>
+
                   <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                    4.4 Initial Limited Supply Permitted
+                    Pharmacists can consider prescribing an initial limited supply of treatment if clinically appropriate to mitigate the risk of delay in access to treatment. Treatment should be limited to the dose or time necessary for an individual to access the referral pathway.
                   </h3>
 
                   <div className="space-y-3">
@@ -1917,147 +1940,182 @@ export default function ColdSoresConsultation() {
               Consultation Outcome
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-8">
               <div>
-                <p className="mb-3 text-sm font-medium text-slate-700">
-                  Consultation outcome
-                </p>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="consultationOutcomeReferral"
+                      checked={formData.consultationOutcomeReferral}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>Referral</span>
+                  </label>
 
-                <div className="flex flex-wrap gap-6">
-                  {[
-                    "Referral",
-                    "Prescription Issued",
-                    "Self-Care Advice",
-                    "No Treatment",
-                  ].map((option) => (
-                    <label
-                      key={option}
-                      className="flex items-center gap-2 text-sm text-slate-700"
-                    >
-                      <input
-                        type="radio"
-                        name="consultationOutcome"
-                        value={option}
-                        checked={formData.consultationOutcome === option}
-                        onChange={handleChange}
-                      />
-                      {option}
-                    </label>
-                  ))}
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="consultationOutcomeSelfCare"
+                      checked={formData.consultationOutcomeSelfCare}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>Self-care</span>
+                  </label>
+
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="consultationOutcomeOTCProduct"
+                      checked={formData.consultationOutcomeOTCProduct}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>OTC Product Supplied</span>
+                  </label>
+
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="consultationOutcomePOMSupplied"
+                      checked={formData.consultationOutcomePOMSupplied}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>Prescription for POM supplied</span>
+                  </label>
                 </div>
 
                 {errors.consultationOutcome && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.consultationOutcome}
-                  </p>
+                  <p className="mt-2 text-sm text-red-500">{errors.consultationOutcome}</p>
                 )}
               </div>
 
               <div>
-                <p className="mb-3 text-sm font-medium text-slate-700">
-                  Tick all that apply
-                </p>
+                <label className="flex items-start gap-3 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    name="declinedTreatment"
+                    checked={formData.declinedTreatment}
+                    onChange={handleChange}
+                    className="mt-1"
+                  />
+                  <span>Patient has declined treatment, please give reason:</span>
+                </label>
 
-                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                  <label className="flex items-center gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="outcomeReferral"
-                      checked={formData.outcomeReferral}
-                      onChange={handleChange}
-                    />
-                    <span>Referred to GP / other medical practitioner</span>
-                  </label>
+                {formData.declinedTreatment && (
+                  <textarea
+                    name="declinedTreatmentReason"
+                    placeholder="Enter reason"
+                    value={formData.declinedTreatmentReason}
+                    onChange={handleChange}
+                    className={getInputClass("declinedTreatmentReason") + " mt-3 h-24"}
+                  />
+                )}
 
-                  <label className="flex items-center gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="outcomePrescriptionIssued"
-                      checked={formData.outcomePrescriptionIssued}
-                      onChange={handleChange}
-                    />
-                    <span>Prescription issued</span>
-                  </label>
+                {errors.declinedTreatmentReason && (
+                  <p className="mt-1 text-sm text-red-500">{errors.declinedTreatmentReason}</p>
+                )}
+              </div>
 
-                  <label className="flex items-center gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="outcomeSelfCareAdvice"
-                      checked={formData.outcomeSelfCareAdvice}
-                      onChange={handleChange}
-                    />
-                    <span>Self-care advice provided</span>
-                  </label>
+              {formData.consultationOutcomeReferral && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                  <h3 className="mb-4 text-lg font-semibold text-amber-800">
+                    8.1 Referred to
+                  </h3>
 
-                  <label className="flex items-center gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="outcomeNoTreatment"
-                      checked={formData.outcomeNoTreatment}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="referredToAE"
+                        checked={formData.referredToAE}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>Accident & Emergency Department</span>
+                    </label>
+
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="referredToGP"
+                        checked={formData.referredToGP}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>General Practitioner (GP)</span>
+                    </label>
+
+                    <label className="flex items-start gap-3 text-sm text-slate-700 md:col-span-2">
+                      <input
+                        type="checkbox"
+                        name="referredToOther"
+                        checked={formData.referredToOther}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>Other (please specify)</span>
+                    </label>
+                  </div>
+
+                  {formData.referredToOther && (
+                    <textarea
+                      name="referredToOtherDetails"
+                      placeholder="Specify other referral destination"
+                      value={formData.referredToOtherDetails}
                       onChange={handleChange}
+                      className={getInputClass("referredToOtherDetails") + " mt-3 h-20"}
                     />
-                    <span>No treatment supplied</span>
-                  </label>
+                  )}
+
+                  {errors.referredTo && (
+                    <p className="mt-2 text-sm text-red-500">{errors.referredTo}</p>
+                  )}
+
+                  {errors.referredToOtherDetails && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.referredToOtherDetails}
+                    </p>
+                  )}
                 </div>
+              )}
 
-                {errors.outcomeType && (
-                  <p className="mt-1 text-sm text-red-500">{errors.outcomeType}</p>
-                )}
-              </div>
+              {formData.consultationOutcomePOMSupplied && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                  <h3 className="mb-4 text-lg font-semibold text-amber-800">
+                    8.2 Medicine Prescribed
+                  </h3>
 
-              <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Outcome details
-                </label>
-                <textarea
-                  name="outcomeDetails"
-                  placeholder="Document treatment supplied, referral decision, advice provided, or relevant outcome notes"
-                  value={formData.outcomeDetails}
-                  onChange={handleChange}
-                  className={getInputClass("outcomeDetails") + " h-28"}
-                />
-                {errors.outcomeDetails && (
-                  <p className="mt-1 text-sm text-red-500">{errors.outcomeDetails}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="flex items-start gap-3 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    name="followUpAdviceGiven"
-                    checked={formData.followUpAdviceGiven}
-                    onChange={handleChange}
-                    className="mt-1"
-                  />
-                  <span>Follow-up advice has been given to the patient</span>
-                </label>
-                {errors.followUpAdviceGiven && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.followUpAdviceGiven}
+                  <p className="mb-4 text-sm text-slate-600">
+                    Please see Protocol and SPCs for dosage and notes for each individual medicinal product.
                   </p>
-                )}
-              </div>
 
-              <div>
-                <label className="flex items-start gap-3 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    name="safetyNettingGiven"
-                    checked={formData.safetyNettingGiven}
-                    onChange={handleChange}
-                    className="mt-1"
-                  />
-                  <span>
-                    Safety-netting advice has been given, including what to do if symptoms worsen or do not improve
-                  </span>
-                </label>
-                {errors.safetyNettingGiven && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.safetyNettingGiven}
-                  </p>
-                )}
-              </div>
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="prescribedAciclovirCream"
+                      checked={formData.prescribedAciclovirCream}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>
+                      Aciclovir 5% w/w cream, applied five times daily at approximately
+                      four hourly intervals omitting the night time application, for at
+                      least four days. If healing has not occurred, treatment may be
+                      continued for up to 10 days.
+                    </span>
+                  </label>
+
+                  {errors.prescribedAciclovirCream && (
+                    <p className="mt-2 text-sm text-red-500">
+                      {errors.prescribedAciclovirCream}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="mt-8 flex justify-between">
@@ -2083,14 +2141,14 @@ export default function ColdSoresConsultation() {
         {step === 9 && (
           <div>
             <h2 className="mb-6 text-2xl font-semibold text-slate-900">
-              Pharmacist Record
+              Pharmacist Information
             </h2>
 
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Pharmacist Name
+                    First & Last Name
                   </label>
                   <input
                     name="pharmacistName"
@@ -2106,39 +2164,53 @@ export default function ColdSoresConsultation() {
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Registration Number
+                    Pharmacy Address
                   </label>
                   <input
-                    name="pharmacistRegistration"
-                    placeholder="Enter registration number"
-                    value={formData.pharmacistRegistration}
+                    name="pharmacyAddress"
+                    placeholder="Enter pharmacy address"
+                    value={formData.pharmacyAddress}
                     onChange={handleChange}
-                    className={getInputClass("pharmacistRegistration")}
+                    className={getInputClass("pharmacyAddress")}
                   />
-                  {errors.pharmacistRegistration && (
-                    <p className="mt-1 text-sm text-red-500">
-                      {errors.pharmacistRegistration}
-                    </p>
+                  {errors.pharmacyAddress && (
+                    <p className="mt-1 text-sm text-red-500">{errors.pharmacyAddress}</p>
                   )}
                 </div>
 
-                <div className="md:col-span-2">
+                <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Pharmacy Name
+                    PSI No.
                   </label>
                   <input
-                    name="pharmacyName"
-                    placeholder="Enter pharmacy name"
-                    value={formData.pharmacyName}
+                    name="psiNumber"
+                    placeholder="Enter PSI number"
+                    value={formData.psiNumber}
                     onChange={handleChange}
-                    className={getInputClass("pharmacyName")}
+                    className={getInputClass("psiNumber")}
                   />
-                  {errors.pharmacyName && (
-                    <p className="mt-1 text-sm text-red-500">{errors.pharmacyName}</p>
+                  {errors.psiNumber && (
+                    <p className="mt-1 text-sm text-red-500">{errors.psiNumber}</p>
                   )}
                 </div>
 
-                <div className="md:col-span-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Eircode
+                  </label>
+                  <input
+                    name="pharmacyEircode"
+                    placeholder="Enter eircode"
+                    value={formData.pharmacyEircode}
+                    onChange={handleChange}
+                    className={getInputClass("pharmacyEircode")}
+                  />
+                  {errors.pharmacyEircode && (
+                    <p className="mt-1 text-sm text-red-500">{errors.pharmacyEircode}</p>
+                  )}
+                </div>
+
+                <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Pharmacist Signature
                   </label>
@@ -2173,55 +2245,38 @@ export default function ColdSoresConsultation() {
                 </div>
               </div>
 
-              <div>
-                <label className="flex items-start gap-3 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    name="recordCompleted"
-                    checked={formData.recordCompleted}
-                    onChange={handleChange}
-                    className="mt-1"
-                  />
-                  <span>
-                    I confirm that this consultation record is complete and accurate.
-                  </span>
-                </label>
-                {errors.recordCompleted && (
-                  <p className="mt-1 text-sm text-red-500">{errors.recordCompleted}</p>
-                )}
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Back
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                >
+                  Next Step
+                </button>
               </div>
-            </div>
-
-            <div className="mt-8 flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                Back
-              </button>
-
-              <button
-                type="button"
-                onClick={nextStep}
-                className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-              >
-                Next Step
-              </button>
             </div>
           </div>
         )}
 
-                {step === 10 && (
+        {step === 10 && (
           <div>
             <h2 className="mb-6 text-2xl font-semibold text-slate-900">
               Consultation Overview
             </h2>
 
             <div className="space-y-6">
+              {/* Step 1 */}
               <div className="rounded-xl border border-slate-200 p-6">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                  Patient Details
+                  1. Personal Details
                 </h3>
 
                 <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
@@ -2238,6 +2293,7 @@ export default function ColdSoresConsultation() {
                   <p><span className="font-medium">GP Name:</span> {formData.gpName || "-"}</p>
                   <p><span className="font-medium">GP Contact:</span> {formData.gpContact || "-"}</p>
                   <p className="md:col-span-2"><span className="font-medium">GP Address:</span> {formData.gpAddress || "-"}</p>
+
                   {isUnder16 && (
                     <p className="md:col-span-2">
                       <span className="font-medium">Guardian:</span> {formData.guardian || "-"}
@@ -2246,9 +2302,10 @@ export default function ColdSoresConsultation() {
                 </div>
               </div>
 
+              {/* Step 2 */}
               <div className="rounded-xl border border-slate-200 p-6">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                  Presenting Complaint
+                  2. Presenting Complaint
                 </h3>
 
                 <div className="space-y-3 text-sm text-slate-700">
@@ -2258,9 +2315,10 @@ export default function ColdSoresConsultation() {
                 </div>
               </div>
 
+              {/* Step 3 */}
               <div className="rounded-xl border border-slate-200 p-6">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                  Medical History
+                  3. Medical History
                 </h3>
 
                 <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
@@ -2276,42 +2334,124 @@ export default function ColdSoresConsultation() {
                 </div>
               </div>
 
+              {/* Step 4 */}
               <div className="rounded-xl border border-slate-200 p-6">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                  Red Flags / Symptoms / Treatment
+                  4. Red Flags and Referral Criteria
                 </h3>
 
                 <div className="space-y-3 text-sm text-slate-700">
-                  <p><span className="font-medium">Red Flag Present:</span> {formData.redFlagPresent || "-"}</p>
+                  <p><span className="font-medium">Emergency Referral:</span> {formData.redFlagEmergency ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Urgent - Under 1 Month:</span> {formData.urgentUnderOneMonth ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Urgent - Eye Involvement:</span> {formData.urgentEyeInvolvement ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Urgent - Immunocompromised:</span> {formData.urgentImmunocompromised ? "Yes" : "No"}</p>
+
+                  <p><span className="font-medium">Referral - Contraindications:</span> {formData.referralContraindications ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Pregnancy:</span> {formData.referralPregnancy ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Spreading Infection:</span> {formData.referralSpreadingInfection ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Not Improving within 14 Days:</span> {formData.referralNotImproving14Days ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Secondary Infection:</span> {formData.referralSecondaryInfection ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Gingivostomatitis:</span> {formData.referralGingivostomatitis ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Erythema Multiforme:</span> {formData.referralErythemaMultiforme ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referral - Hypersensitivity:</span> {formData.referralHypersensitivity ? "Yes" : "No"}</p>
+
+                  <p><span className="font-medium">Limited Supply - Immunocompromised:</span> {formData.limitedSupplyImmunocompromised ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Limited Supply - Recurrent Lesions:</span> {formData.limitedSupplyRecurrentLesions ? "Yes" : "No"}</p>
+
+                  <p><span className="font-medium">Any Red Flag Present:</span> {formData.redFlagPresent || "-"}</p>
                   <p><span className="font-medium">Referral Reason:</span> {formData.referralReason || "-"}</p>
+                </div>
+              </div>
+
+              {/* Step 5 */}
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  5. Review of Symptoms
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <p><span className="font-medium">Prodromal Phase:</span> {formData.symptomProdromal ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Fluid-filled Blisters:</span> {formData.symptomBlisters ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Swollen / Tender Glands:</span> {formData.symptomTenderGlands ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Gingivostomatitis Symptoms:</span> {formData.symptomGingivostomatitis ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - Sore Gums:</span> {formData.childSoreGums ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - Sore Throat:</span> {formData.childSoreThroat ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - More Saliva:</span> {formData.childMoreSaliva ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - High Temperature:</span> {formData.childHighTemperature ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - Headaches:</span> {formData.childHeadaches ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Child - Refusal to Drink Fluids:</span> {formData.childRefusalFluids ? "Yes" : "No"}</p>
                   <p><span className="font-medium">Symptoms Typical:</span> {formData.symptomsTypical || "-"}</p>
                   <p><span className="font-medium">Symptoms Referral Reason:</span> {formData.symptomsReferralReason || "-"}</p>
+                </div>
+              </div>
+
+              {/* Step 6 */}
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  6. Treatment Options
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
                   <p><span className="font-medium">Meets Inclusion Criteria:</span> {formData.meetsInclusionCriteria ? "Yes" : "No"}</p>
                   <p><span className="font-medium">Proceed With Prescribing:</span> {formData.proceedWithPrescribing ? "Yes" : "No"}</p>
                   <p><span className="font-medium">Advice And Counselling:</span> {formData.adviceAndCounselling ? "Yes" : "No"}</p>
                 </div>
               </div>
 
+              {/* Step 7 */}
               <div className="rounded-xl border border-slate-200 p-6">
                 <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                  Declaration / Outcome / Pharmacist Record
+                  7. Patient Declaration
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <p><span className="font-medium">Clinical Info Sharing Agreed:</span> {formData.declarationClinicalInfoSharing ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Dispensing Choice Statement Agreed:</span> {formData.declarationDispensingChoice ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Dispense To Another Pharmacy:</span> {formData.dispenseToAnotherPharmacy ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Dispense In This Pharmacy:</span> {formData.dispenseInThisPharmacy ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Consent Signature:</span> {formData.consentSignature || "-"}</p>
+                  <p><span className="font-medium">Consent Date:</span> {formData.consentDate || "-"}</p>
+
+                  {isUnder16 && (
+                    <p><span className="font-medium">Guardian Consent Signature:</span> {formData.guardianConsentSignature || "-"}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Step 8 */}
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  8. Consultation Outcome
+                </h3>
+
+                <div className="space-y-3 text-sm text-slate-700">
+                  <p><span className="font-medium">Referral:</span> {formData.consultationOutcomeReferral ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Self-care:</span> {formData.consultationOutcomeSelfCare ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">OTC Product Supplied:</span> {formData.consultationOutcomeOTCProduct ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Prescription for POM Supplied:</span> {formData.consultationOutcomePOMSupplied ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Declined Treatment:</span> {formData.declinedTreatment ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Declined Treatment Reason:</span> {formData.declinedTreatmentReason || "-"}</p>
+
+                  <p><span className="font-medium">Referred to A&E:</span> {formData.referredToAE ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referred to GP:</span> {formData.referredToGP ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Referred to Other:</span> {formData.referredToOther ? "Yes" : "No"}</p>
+                  <p><span className="font-medium">Other Referral Details:</span> {formData.referredToOtherDetails || "-"}</p>
+
+                  <p><span className="font-medium">Prescribed Aciclovir 5% Cream:</span> {formData.prescribedAciclovirCream ? "Yes" : "No"}</p>
+                </div>
+              </div>
+
+              {/* Step 9 */}
+              <div className="rounded-xl border border-slate-200 p-6">
+                <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                  9. Pharmacist Information
                 </h3>
 
                 <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
-                  <p><span className="font-medium">Consent Signature:</span> {formData.consentSignature || "-"}</p>
-                  <p><span className="font-medium">Consent Date:</span> {formData.consentDate || "-"}</p>
-                  {isUnder16 && (
-                    <p className="md:col-span-2">
-                      <span className="font-medium">Guardian Consent Signature:</span> {formData.guardianConsentSignature || "-"}
-                    </p>
-                  )}
-                  <p><span className="font-medium">Consultation Outcome:</span> {formData.consultationOutcome || "-"}</p>
-                  <p className="md:col-span-2"><span className="font-medium">Outcome Details:</span> {formData.outcomeDetails || "-"}</p>
-                  <p><span className="font-medium">Follow-up Advice Given:</span> {formData.followUpAdviceGiven ? "Yes" : "No"}</p>
-                  <p><span className="font-medium">Safety Netting Given:</span> {formData.safetyNettingGiven ? "Yes" : "No"}</p>
                   <p><span className="font-medium">Pharmacist Name:</span> {formData.pharmacistName || "-"}</p>
-                  <p><span className="font-medium">Registration Number:</span> {formData.pharmacistRegistration || "-"}</p>
-                  <p><span className="font-medium">Pharmacy Name:</span> {formData.pharmacyName || "-"}</p>
+                  <p><span className="font-medium">PSI Number:</span> {formData.psiNumber || "-"}</p>
+                  <p><span className="font-medium">Pharmacy Address:</span> {formData.pharmacyAddress || "-"}</p>
+                  <p><span className="font-medium">Pharmacy Eircode:</span> {formData.pharmacyEircode || "-"}</p>
                   <p><span className="font-medium">Pharmacist Signature:</span> {formData.pharmacistSignature || "-"}</p>
                   <p><span className="font-medium">Pharmacist Date:</span> {formData.pharmacistDate || "-"}</p>
                 </div>
@@ -2330,14 +2470,6 @@ export default function ColdSoresConsultation() {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={handleSaveConsultation}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Save
-                </button>
-
-                <button
-                  type="button"
                   onClick={handlePrintConsultation}
                   className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
                 >
@@ -2346,10 +2478,10 @@ export default function ColdSoresConsultation() {
 
                 <button
                   type="button"
-                  onClick={() => router.push("/consultation")}
+                  onClick={handleSaveAndFinish}
                   className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
                 >
-                  Finish
+                  Save & Finish
                 </button>
               </div>
             </div>

@@ -93,14 +93,14 @@ export default function DashboardPage() {
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">
-              Documentation Summary
+              Compliance Reports
             </h3>
             <p className="mt-2 text-sm text-slate-500">Coming soon</p>
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">
-              Compliance Tools
+              Multi-branch Management
             </h3>
             <p className="mt-2 text-sm text-slate-500">Coming soon</p>
           </div>

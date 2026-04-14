@@ -38,6 +38,13 @@ export default function ConsultationSelectionPage() {
     },
 
     {
+      name:"Allergic Rhinitis & Allergic Conjunctivitis",
+      description:"Assessment form for allergic rhinitis & allergic Conjunctivitis consultations.",
+      href:"/consultation/allergic-rhinitis-conjunctivitis",
+      available:true
+    },
+
+    {
       name:"Shingles",
       description:"Assessment form coming soon.",
       available:false
@@ -65,14 +72,7 @@ export default function ConsultationSelectionPage() {
       name:"Uncomplicated Lower UTI (Cystitis)",
       description:"Assessment form coming soon.",
       available:false
-    },
-
-    {
-      name:"Allergic Rhinitis & Allergic Conjunctivitis",
-      description:"Assessment form coming soon.",
-      available:false
     }
-
   ];
 
   return(
