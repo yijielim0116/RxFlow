@@ -1,17 +1,18 @@
 // @ts-nocheck
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { ArrowLeft, Eye, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, Trash2, Search } from "lucide-react";
 
 export default function RecentConsultationsPage() {
   const router = useRouter();
 
   const [user, setUser] = useState(null);
   const [consultations, setConsultations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("rxflowUser");
@@ -43,6 +44,24 @@ export default function RecentConsultationsPage() {
     );
   };
 
+  const filteredConsultations = useMemo(() => {
+    const search = searchTerm.trim().toLowerCase();
+
+    if (!search) return consultations;
+
+    return consultations.filter((consultation) => {
+      const patientName = consultation.patientName?.toLowerCase() || "";
+      const type = consultation.type?.toLowerCase() || "";
+      const pharmacistName = consultation.pharmacistName?.toLowerCase() || "";
+
+      return (
+        patientName.includes(search) ||
+        type.includes(search) ||
+        pharmacistName.includes(search)
+      );
+    });
+  }, [consultations, searchTerm]);
+
   if (!user) {
     return null;
   }
@@ -66,9 +85,27 @@ export default function RecentConsultationsPage() {
           Recent Consultations
         </h1>
 
-        <p className="mb-8 text-slate-600">
+        <p className="mb-6 text-slate-600">
           View previously saved consultation records.
         </p>
+
+        {consultations.length > 0 && (
+          <div className="mb-8">
+            <div className="relative">
+              <Search
+                size={18}
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="text"
+                placeholder="Search by patient name, consultation type, or pharmacist"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-2xl border border-slate-300 bg-white py-3 pl-11 pr-4 text-slate-900 placeholder-slate-400 outline-none transition focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
+              />
+            </div>
+          </div>
+        )}
 
         {consultations.length === 0 ? (
           <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
@@ -88,6 +125,16 @@ export default function RecentConsultationsPage() {
                 Start Consultation
               </Link>
             </div>
+          </div>
+        ) : filteredConsultations.length === 0 ? (
+          <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
+            <h2 className="text-xl font-semibold text-slate-900">
+              No matching consultations found
+            </h2>
+            <p className="mt-2 text-slate-500">
+              Try searching with a patient name, consultation type, or
+              pharmacist name.
+            </p>
           </div>
         ) : (
           <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -114,7 +161,7 @@ export default function RecentConsultationsPage() {
                 </thead>
 
                 <tbody>
-                  {consultations.map((consultation) => (
+                  {filteredConsultations.map((consultation) => (
                     <tr
                       key={consultation.id}
                       className="border-b border-slate-100 last:border-b-0"

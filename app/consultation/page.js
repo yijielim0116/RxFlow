@@ -39,7 +39,7 @@ export default function ConsultationSelectionPage() {
 
     {
       name:"Allergic Rhinitis & Allergic Conjunctivitis",
-      description:"Assessment form for allergic rhinitis & allergic Conjunctivitis consultations.",
+      description:"Assessment form for allergic rhinitis & allergic conjunctivitis consultations.",
       href:"/consultation/allergic-rhinitis-conjunctivitis",
       available:true
     },
