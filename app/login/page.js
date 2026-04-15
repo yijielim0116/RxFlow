@@ -87,11 +87,10 @@ export default function LoginPage() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.email
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.email
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
 
                 {errors.email && (
@@ -105,11 +104,10 @@ export default function LoginPage() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.password
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.password
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
 
                 {errors.password && (

@@ -125,11 +125,10 @@ export default function SignUpPage() {
                   placeholder="Full name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.name
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.name
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-500">{errors.name}</p>
@@ -142,11 +141,10 @@ export default function SignUpPage() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.email
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.email
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-500">{errors.email}</p>
@@ -159,11 +157,10 @@ export default function SignUpPage() {
                   placeholder="Pharmacy name"
                   value={pharmacy}
                   onChange={(e) => setPharmacy(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.pharmacy
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.pharmacy
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
                 {errors.pharmacy && (
                   <p className="mt-1 text-sm text-red-500">
@@ -178,11 +175,10 @@ export default function SignUpPage() {
                   placeholder="Create password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.password
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.password
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-500">
@@ -197,11 +193,10 @@ export default function SignUpPage() {
                   placeholder="Confirm password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${
-                    errors.confirmPassword
+                  className={`w-full rounded-lg border px-4 py-3 text-slate-800 outline-none transition ${errors.confirmPassword
                       ? "border-red-400 focus:ring-2 focus:ring-red-100"
                       : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
-                  }`}
+                    }`}
                 />
                 {errors.confirmPassword && (
                   <p className="mt-1 text-sm text-red-500">

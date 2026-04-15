@@ -8,78 +8,78 @@ import Navbar from "@/components/Navbar";
 
 export default function ConsultationSelectionPage() {
 
-  const [user,setUser] = useState(null);
+  const [user, setUser] = useState(null);
   const router = useRouter();
 
-  useEffect(()=>{
+  useEffect(() => {
 
     const storedUser = localStorage.getItem("rxflowUser");
 
-    if(!storedUser){
+    if (!storedUser) {
       router.push("/login");
       return;
     }
 
     setUser(JSON.parse(storedUser));
 
-  },[router]);
+  }, [router]);
 
-  if(!user){
+  if (!user) {
     return null;
   }
 
   const conditions = [
 
     {
-      name:"Cold Sores",
-      description:"Assessment form for cold sores consultations.",
-      href:"/consultation/cold-sores",
-      available:true
+      name: "Cold Sores",
+      description: "Assessment form for cold sores consultations.",
+      href: "/consultation/cold-sores",
+      available: true
     },
 
     {
-      name:"Allergic Rhinitis & Allergic Conjunctivitis",
-      description:"Assessment form for allergic rhinitis & allergic conjunctivitis consultations.",
-      href:"/consultation/allergic-rhinitis-conjunctivitis",
-      available:true
+      name: "Allergic Rhinitis & Allergic Conjunctivitis",
+      description: "Assessment form for allergic rhinitis & allergic conjunctivitis consultations.",
+      href: "/consultation/allergic-rhinitis-conjunctivitis",
+      available: true
     },
 
     {
-      name:"Shingles",
-      description:"Assessment form coming soon.",
-      available:false
+      name: "Shingles",
+      description: "Assessment form coming soon.",
+      available: false
     },
 
     {
-      name:"Oral Thrush",
-      description:"Assessment form coming soon.",
-      available:false
+      name: "Oral Thrush",
+      description: "Assessment form coming soon.",
+      available: false
     },
 
     {
-      name:"Vulvovaginal Thrush",
-      description:"Assessment form coming soon.",
-      available:false
+      name: "Vulvovaginal Thrush",
+      description: "Assessment form coming soon.",
+      available: false
     },
 
     {
-      name:"Impetigo",
-      description:"Assessment form coming soon.",
-      available:false
+      name: "Impetigo",
+      description: "Assessment form coming soon.",
+      available: false
     },
 
     {
-      name:"Uncomplicated Lower UTI (Cystitis)",
-      description:"Assessment form coming soon.",
-      available:false
+      name: "Uncomplicated Lower UTI (Cystitis)",
+      description: "Assessment form coming soon.",
+      available: false
     }
   ];
 
-  return(
+  return (
 
     <main className="min-h-screen bg-slate-100">
 
-      <Navbar user={user}/>
+      <Navbar user={user} />
 
       {/* Back navigation */}
       <div className="mx-auto max-w-6xl px-6 pt-6 md:px-10">
@@ -88,7 +88,7 @@ export default function ConsultationSelectionPage() {
           href="/dashboard"
           className="inline-flex items-center gap-2 text-slate-600 font-medium hover:text-sky-700 hover:-translate-x-1 transition"
         >
-          <ArrowLeft size={18}/>
+          <ArrowLeft size={18} />
           <span className="text-sm">Back to Dashboard</span>
         </Link>
 
@@ -110,16 +110,15 @@ export default function ConsultationSelectionPage() {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
 
-          {conditions.map((condition)=>(
+          {conditions.map((condition) => (
 
             <div
               key={condition.name}
 
-              className={`rounded-2xl border p-6 shadow-sm transition ${
-                condition.available
-                ? "bg-white border-slate-200 hover:shadow-md hover:-translate-y-1"
-                : "bg-slate-50 border-slate-200 opacity-80"
-              }`}
+              className={`rounded-2xl border p-6 shadow-sm transition ${condition.available
+                  ? "bg-white border-slate-200 hover:shadow-md hover:-translate-y-1"
+                  : "bg-slate-50 border-slate-200 opacity-80"
+                }`}
             >
 
               <div className="flex items-start justify-between gap-4">
@@ -128,7 +127,7 @@ export default function ConsultationSelectionPage() {
                   {condition.name}
                 </h2>
 
-                {!condition.available &&(
+                {!condition.available && (
 
                   <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-medium text-slate-600">
                     Coming soon
@@ -144,7 +143,7 @@ export default function ConsultationSelectionPage() {
 
               <div className="mt-6">
 
-                {condition.available ?(
+                {condition.available ? (
 
                   <Link
                     href={condition.href}
@@ -153,8 +152,8 @@ export default function ConsultationSelectionPage() {
                     Start Consultation
                   </Link>
 
-                ):(
-                  
+                ) : (
+
                   <button
                     disabled
                     className="inline-flex cursor-not-allowed items-center rounded-xl bg-slate-300 px-5 py-3 text-sm font-medium text-slate-600"

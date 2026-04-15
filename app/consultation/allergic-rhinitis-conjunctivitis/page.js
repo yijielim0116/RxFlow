@@ -220,36 +220,35 @@ export default function AllergicRhinitisConsultation() {
     });
   };
 
- const handleSaveAndFinish = () => {
-  const existingConsultations =
-    JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
+  const handleSaveAndFinish = () => {
+    const existingConsultations =
+      JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
 
-  const newConsultation = {
-    id: Date.now(),
-    type: "Allergic Rhinitis & Allergic Conjunctivitis",
-    createdAt: new Date().toISOString(),
-    patientName: formData.patientName,
-    pharmacistName: formData.pharmacistName,
-    data: formData,
+    const newConsultation = {
+      id: Date.now(),
+      type: "Allergic Rhinitis & Allergic Conjunctivitis",
+      createdAt: new Date().toISOString(),
+      patientName: formData.patientName,
+      pharmacistName: formData.pharmacistName,
+      data: formData,
+    };
+
+    localStorage.setItem(
+      "rxflowConsultations",
+      JSON.stringify([...existingConsultations, newConsultation])
+    );
+
+    router.push("/recent-consultations");
   };
 
-  localStorage.setItem(
-    "rxflowConsultations",
-    JSON.stringify([...existingConsultations, newConsultation])
-  );
-
-  router.push("/recent-consultations");
-};
-
-const handlePrintConsultation = () => {
-  window.print();
-};
+  const handlePrintConsultation = () => {
+    window.print();
+  };
 
   const getInputClass = (fieldName) =>
-    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${
-      errors[fieldName]
-        ? "border-red-400 focus:ring-2 focus:ring-red-100"
-        : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
+    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${errors[fieldName]
+      ? "border-red-400 focus:ring-2 focus:ring-red-100"
+      : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
     }`;
 
   const validateStepOne = () => {
@@ -394,108 +393,108 @@ const handlePrintConsultation = () => {
     const newErrors = {};
 
     if (!formData.declarationClinicalInfoSharing) {
-        newErrors.declarationClinicalInfoSharing =
+      newErrors.declarationClinicalInfoSharing =
         "Please confirm clinical information sharing";
     }
 
     if (!formData.declarationDispensingChoice) {
-        newErrors.declarationDispensingChoice =
+      newErrors.declarationDispensingChoice =
         "Please confirm dispensing choice statement";
     }
 
     if (
-        !formData.dispenseToAnotherPharmacy &&
-        !formData.dispenseInThisPharmacy
+      !formData.dispenseToAnotherPharmacy &&
+      !formData.dispenseInThisPharmacy
     ) {
-        newErrors.dispensingOption = "Please choose one dispensing option";
+      newErrors.dispensingOption = "Please choose one dispensing option";
     }
 
     if (
-        formData.dispenseToAnotherPharmacy &&
-        formData.dispenseInThisPharmacy
+      formData.dispenseToAnotherPharmacy &&
+      formData.dispenseInThisPharmacy
     ) {
-        newErrors.dispensingOption = "Please choose only one dispensing option";
+      newErrors.dispensingOption = "Please choose only one dispensing option";
     }
 
     if (!formData.consentSignature.trim()) {
-        newErrors.consentSignature = "Signature is required";
+      newErrors.consentSignature = "Signature is required";
     }
 
     if (isUnder16 && !formData.guardianConsentSignature.trim()) {
-        newErrors.guardianConsentSignature =
+      newErrors.guardianConsentSignature =
         "Parent/guardian signature is required";
     }
 
     if (!formData.consentDate) {
-        newErrors.consentDate = "Date is required";
+      newErrors.consentDate = "Date is required";
     }
 
     return newErrors;
-    };
+  };
 
-    const validateStepEight = () => {
+  const validateStepEight = () => {
     const newErrors = {};
 
     if (
-        !formData.outcomeReferral &&
-        !formData.outcomeSelfCare &&
-        !formData.outcomeOTCSupplied &&
-        !formData.outcomePOMSupplied
+      !formData.outcomeReferral &&
+      !formData.outcomeSelfCare &&
+      !formData.outcomeOTCSupplied &&
+      !formData.outcomePOMSupplied
     ) {
-        newErrors.consultationOutcome =
+      newErrors.consultationOutcome =
         "Please select at least one consultation outcome";
     }
 
     if (formData.patientDeclinedTreatment && !formData.declinedReason.trim()) {
-        newErrors.declinedReason = "Please provide a reason";
+      newErrors.declinedReason = "Please provide a reason";
     }
 
     if (formData.outcomeReferral) {
-        if (
+      if (
         !formData.referredToAEDepartment &&
         !formData.referredToGP &&
         !formData.referredToOther
-        ) {
+      ) {
         newErrors.referredTo = "Please select where the patient was referred to";
-        }
+      }
 
-        if (formData.referredToOther && !formData.referredToOtherDetails.trim()) {
+      if (formData.referredToOther && !formData.referredToOtherDetails.trim()) {
         newErrors.referredToOtherDetails = "Please specify other referral destination";
-        }
+      }
     }
 
     return newErrors;
-    };
+  };
 
-    const validateStepNine = () => {
+  const validateStepNine = () => {
     const newErrors = {};
 
     if (!formData.pharmacistName.trim()) {
-        newErrors.pharmacistName = "Pharmacist name is required";
+      newErrors.pharmacistName = "Pharmacist name is required";
     }
 
     if (!formData.psiNumber.trim()) {
-        newErrors.psiNumber = "PSI number is required";
+      newErrors.psiNumber = "PSI number is required";
     }
 
     if (!formData.pharmacistSignature.trim()) {
-        newErrors.pharmacistSignature = "Signature is required";
+      newErrors.pharmacistSignature = "Signature is required";
     }
 
     if (!formData.pharmacyAddress.trim()) {
-        newErrors.pharmacyAddress = "Pharmacy address is required";
+      newErrors.pharmacyAddress = "Pharmacy address is required";
     }
 
     if (!formData.pharmacyEircode.trim()) {
-        newErrors.pharmacyEircode = "Eircode is required";
+      newErrors.pharmacyEircode = "Eircode is required";
     }
 
     if (!formData.pharmacistDate) {
-        newErrors.pharmacistDate = "Date is required";
+      newErrors.pharmacistDate = "Date is required";
     }
 
     return newErrors;
-    };
+  };
 
   const nextStep = () => {
     let newErrors = {};
@@ -515,21 +514,21 @@ const handlePrintConsultation = () => {
     if (Object.keys(newErrors).length > 0) return;
 
     if (step === 4 && formData.hasRedFlags === "Yes") {
-        setStep(7);
-        return;
+      setStep(7);
+      return;
     }
 
     setStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-  if (step === 7 && formData.hasRedFlags === "Yes") {
-    setStep(4);
-    return;
-  }
+    if (step === 7 && formData.hasRedFlags === "Yes") {
+      setStep(4);
+      return;
+    }
 
-  setStep((prev) => prev - 1);
-};
+    setStep((prev) => prev - 1);
+  };
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -1127,7 +1126,7 @@ const handlePrintConsultation = () => {
                       </label>
                     ))}
                     <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                        *Pharmacists who have undergone the requisite training should consider use of emergency medicine if clinically appropriate, in addtion to calling an ambulance (Medicinal Products (Prescription and Control of Supply)(Amendment)(No. 2) Regulations 2015 (SI 449/2015))
+                      *Pharmacists who have undergone the requisite training should consider use of emergency medicine if clinically appropriate, in addtion to calling an ambulance (Medicinal Products (Prescription and Control of Supply)(Amendment)(No. 2) Regulations 2015 (SI 449/2015))
                     </h3>
                   </div>
                 </div>
@@ -1176,7 +1175,7 @@ const handlePrintConsultation = () => {
                   </h3>
 
                   <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                        *Pharmacists can consider prescribing an initial limited supply of treatment if clinically appropriate to mitigate the risk of delay in access to treatment. Treatment should be limited to the dose or time necessary for an individual to access the referral pathway.
+                    *Pharmacists can consider prescribing an initial limited supply of treatment if clinically appropriate to mitigate the risk of delay in access to treatment. Treatment should be limited to the dose or time necessary for an individual to access the referral pathway.
                   </h3>
 
                   <div className="space-y-3">
@@ -1545,11 +1544,11 @@ const handlePrintConsultation = () => {
                 </button>
 
                 <button
-                    type="button"
-                    onClick={nextStep}
-                    className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                  type="button"
+                  onClick={nextStep}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
                 >
-                    Next Step
+                  Next Step
                 </button>
               </div>
             </div>
@@ -1557,947 +1556,947 @@ const handlePrintConsultation = () => {
 
           {step === 7 && (
             <div>
-                <h2 className="mb-6 text-2xl font-semibold text-slate-900">
+              <h2 className="mb-6 text-2xl font-semibold text-slate-900">
                 Patient Declaration
-                </h2>
+              </h2>
 
-                <div className="space-y-6">
+              <div className="space-y-6">
                 <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <ul className="space-y-2 text-sm text-slate-700">
+                  <ul className="space-y-2 text-sm text-slate-700">
                     <li>
-                        • I understand the nature of the condition, how the treatment works,
-                        the benefits and risks of the treatment. I understand the possible side effects
-                        of the prescription medicine issued.
+                      • I understand the nature of the condition, how the treatment works,
+                      the benefits and risks of the treatment. I understand the possible side effects
+                      of the prescription medicine issued.
                     </li>
                     <li>
-                        • I have been given the opportunity to speak to the pharmacist
-                        providing the consultation and to ask questions and raise any
-                        concerns.
+                      • I have been given the opportunity to speak to the pharmacist
+                      providing the consultation and to ask questions and raise any
+                      concerns.
                     </li>
                     <li>
-                        • I have been given information with regards steps to take if my
-                        condition gets worse, or does not improve.
+                      • I have been given information with regards steps to take if my
+                      condition gets worse, or does not improve.
                     </li>
                     <li>
-                        • The information and details I have provided are accurate, and I
-                        understand that this will be recorded and kept by the pharmacy and
-                        shared with the HSE for the purposes of public health as required by
-                        legislation.
+                      • The information and details I have provided are accurate, and I
+                      understand that this will be recorded and kept by the pharmacy and
+                      shared with the HSE for the purposes of public health as required by
+                      legislation.
                     </li>
                     <li>
-                        • I understand that any data collected will be processed in
-                        accordance with relevant data protection requirements.
+                      • I understand that any data collected will be processed in
+                      accordance with relevant data protection requirements.
                     </li>
-                    </ul>
+                  </ul>
                 </div>
 
                 <div>
-                    <p className="mb-3 text-sm font-medium text-slate-700">
+                  <p className="mb-3 text-sm font-medium text-slate-700">
                     Please tick all that apply:
-                    </p>
+                  </p>
 
-                    <div className="space-y-4">
+                  <div className="space-y-4">
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
+                      <input
                         type="checkbox"
                         name="declarationClinicalInfoSharing"
                         checked={formData.declarationClinicalInfoSharing}
                         onChange={handleChange}
                         className="mt-1"
-                        />
-                        <span>
+                      />
+                      <span>
                         I agree to the sharing of relevant clinical information with
                         another healthcare professional if deemed necessary by the
                         pharmacist, and I understand how this information will support my
                         ongoing care.
-                        </span>
+                      </span>
                     </label>
                     {errors.declarationClinicalInfoSharing && (
-                        <p className="text-sm text-red-500">
+                      <p className="text-sm text-red-500">
                         {errors.declarationClinicalInfoSharing}
-                        </p>
+                      </p>
                     )}
 
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
+                      <input
                         type="checkbox"
                         name="declarationDispensingChoice"
                         checked={formData.declarationDispensingChoice}
                         onChange={handleChange}
                         className="mt-1"
-                        />
-                        <span>
+                      />
+                      <span>
                         I understand that I can have this prescription dispensed in this
                         pharmacy or that I can choose to have it dispensed in another
                         pharmacy of my choice.
-                        </span>
+                      </span>
                     </label>
                     {errors.declarationDispensingChoice && (
-                        <p className="text-sm text-red-500">
+                      <p className="text-sm text-red-500">
                         {errors.declarationDispensingChoice}
-                        </p>
+                      </p>
                     )}
-                    </div>
+                  </div>
                 </div>
 
                 <div>
-                    <p className="mb-3 text-sm font-medium text-slate-700">
+                  <p className="mb-3 text-sm font-medium text-slate-700">
                     Please choose one dispensing option
-                    </p>
+                  </p>
 
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
+                      <input
                         type="checkbox"
                         name="dispenseToAnotherPharmacy"
                         checked={formData.dispenseToAnotherPharmacy}
                         onChange={(e) => {
-                            const checked = e.target.checked;
-                            setFormData((prev) => ({
+                          const checked = e.target.checked;
+                          setFormData((prev) => ({
                             ...prev,
                             dispenseToAnotherPharmacy: checked,
                             dispenseInThisPharmacy: checked
-                                ? false
-                                : prev.dispenseInThisPharmacy,
-                            }));
+                              ? false
+                              : prev.dispenseInThisPharmacy,
+                          }));
                         }}
                         className="mt-1"
-                        />
-                        <span>I am choosing to take my prescription to another pharmacy</span>
+                      />
+                      <span>I am choosing to take my prescription to another pharmacy</span>
                     </label>
 
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
+                      <input
                         type="checkbox"
                         name="dispenseInThisPharmacy"
                         checked={formData.dispenseInThisPharmacy}
                         onChange={(e) => {
-                            const checked = e.target.checked;
-                            setFormData((prev) => ({
+                          const checked = e.target.checked;
+                          setFormData((prev) => ({
                             ...prev,
                             dispenseInThisPharmacy: checked,
                             dispenseToAnotherPharmacy: checked
-                                ? false
-                                : prev.dispenseToAnotherPharmacy,
-                            }));
+                              ? false
+                              : prev.dispenseToAnotherPharmacy,
+                          }));
                         }}
                         className="mt-1"
-                        />
-                        <span>I have chosen to have my prescription dispensed in this pharmacy</span>
+                      />
+                      <span>I have chosen to have my prescription dispensed in this pharmacy</span>
                     </label>
-                    </div>
+                  </div>
 
-                    {errors.dispensingOption && (
+                  {errors.dispensingOption && (
                     <p className="mt-1 text-sm text-red-500">{errors.dispensingOption}</p>
-                    )}
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div className="md:col-span-2">
+                  <div className="md:col-span-2">
                     <label className="mb-2 block text-sm font-medium text-slate-700">
-                        Signature of person providing consent
+                      Signature of person providing consent
                     </label>
                     <input
-                        name="consentSignature"
-                        placeholder="Type full name as signature"
-                        value={formData.consentSignature}
-                        onChange={handleChange}
-                        className={getInputClass("consentSignature")}
+                      name="consentSignature"
+                      placeholder="Type full name as signature"
+                      value={formData.consentSignature}
+                      onChange={handleChange}
+                      className={getInputClass("consentSignature")}
                     />
                     {errors.consentSignature && (
-                        <p className="mt-1 text-sm text-red-500">{errors.consentSignature}</p>
+                      <p className="mt-1 text-sm text-red-500">{errors.consentSignature}</p>
                     )}
-                    </div>
+                  </div>
 
-                    {isUnder16 && (
+                  {isUnder16 && (
                     <div className="md:col-span-2">
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
+                      <label className="mb-2 block text-sm font-medium text-slate-700">
                         Signature of parent/guardian providing consent if child is aged under 16 years
-                        </label>
-                        <input
+                      </label>
+                      <input
                         name="guardianConsentSignature"
                         placeholder="Type parent/guardian full name as signature"
                         value={formData.guardianConsentSignature}
                         onChange={handleChange}
                         className={getInputClass("guardianConsentSignature")}
-                        />
-                        {errors.guardianConsentSignature && (
+                      />
+                      {errors.guardianConsentSignature && (
                         <p className="mt-1 text-sm text-red-500">
-                            {errors.guardianConsentSignature}
+                          {errors.guardianConsentSignature}
                         </p>
-                        )}
+                      )}
                     </div>
-                    )}
+                  )}
 
-                    <div>
+                  <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">
-                        Date
+                      Date
                     </label>
                     <input
-                        type="date"
-                        name="consentDate"
-                        value={formData.consentDate}
-                        onChange={handleChange}
-                        className={getInputClass("consentDate")}
+                      type="date"
+                      name="consentDate"
+                      value={formData.consentDate}
+                      onChange={handleChange}
+                      className={getInputClass("consentDate")}
                     />
                     {errors.consentDate && (
-                        <p className="mt-1 text-sm text-red-500">{errors.consentDate}</p>
+                      <p className="mt-1 text-sm text-red-500">{errors.consentDate}</p>
                     )}
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
 
-                <div className="mt-8 flex justify-between">
+              <div className="mt-8 flex justify-between">
                 <button
-                    type="button"
-                    onClick={prevStep}
-                    className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                  type="button"
+                  onClick={prevStep}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
                 >
-                    Back
+                  Back
                 </button>
 
                 <button
-                    type="button"
-                    onClick={nextStep}
-                    className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                  type="button"
+                  onClick={nextStep}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
                 >
-                    Next Step
+                  Next Step
                 </button>
-                </div>
+              </div>
             </div>
-            )}
+          )}
 
-            {step === 8 && (
+          {step === 8 && (
+            <div>
+              <h2 className="mb-6 text-2xl font-semibold text-slate-900">
+                Consultation Outcome
+              </h2>
+
+              <div className="space-y-8">
                 <div>
-                    <h2 className="mb-6 text-2xl font-semibold text-slate-900">
-                    Consultation Outcome
-                    </h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="outcomeReferral"
+                        checked={formData.outcomeReferral}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>Referral</span>
+                    </label>
 
-                    <div className="space-y-8">
-                    <div>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                            type="checkbox"
-                            name="outcomeReferral"
-                            checked={formData.outcomeReferral}
-                            onChange={handleChange}
-                            className="mt-1"
-                            />
-                            <span>Referral</span>
-                        </label>
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="outcomeSelfCare"
+                        checked={formData.outcomeSelfCare}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>Self-care</span>
+                    </label>
 
-                        <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                            type="checkbox"
-                            name="outcomeSelfCare"
-                            checked={formData.outcomeSelfCare}
-                            onChange={handleChange}
-                            className="mt-1"
-                            />
-                            <span>Self-care</span>
-                        </label>
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="outcomeOTCSupplied"
+                        checked={formData.outcomeOTCSupplied}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>OTC Product Supplied</span>
+                    </label>
 
-                        <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                            type="checkbox"
-                            name="outcomeOTCSupplied"
-                            checked={formData.outcomeOTCSupplied}
-                            onChange={handleChange}
-                            className="mt-1"
-                            />
-                            <span>OTC Product Supplied</span>
-                        </label>
+                    <label className="flex items-start gap-3 text-sm text-slate-700">
+                      <input
+                        type="checkbox"
+                        name="outcomePOMSupplied"
+                        checked={formData.outcomePOMSupplied}
+                        onChange={handleChange}
+                        className="mt-1"
+                      />
+                      <span>Prescription for POM supplied</span>
+                    </label>
+                  </div>
 
-                        <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                            type="checkbox"
-                            name="outcomePOMSupplied"
-                            checked={formData.outcomePOMSupplied}
-                            onChange={handleChange}
-                            className="mt-1"
-                            />
-                            <span>Prescription for POM supplied</span>
-                        </label>
-                        </div>
-
-                        {errors.consultationOutcome && (
-                        <p className="mt-2 text-sm text-red-500">{errors.consultationOutcome}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
-                            type="checkbox"
-                            name="patientDeclinedTreatment"
-                            checked={formData.patientDeclinedTreatment}
-                            onChange={handleChange}
-                            className="mt-1"
-                        />
-                        <span>Patient has declined treatment, please give reason:</span>
-                        </label>
-
-                        {formData.patientDeclinedTreatment && (
-                        <textarea
-                            name="declinedReason"
-                            placeholder="Enter reason"
-                            value={formData.declinedReason}
-                            onChange={handleChange}
-                            className={getInputClass("declinedReason") + " mt-3 h-24"}
-                        />
-                        )}
-
-                        {errors.declinedReason && (
-                        <p className="mt-1 text-sm text-red-500">{errors.declinedReason}</p>
-                        )}
-                    </div>
-
-                    {formData.outcomeReferral && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-                  <h3 className="mb-4 text-lg font-semibold text-amber-800">
-                            8.1 Referred to
-                        </h3>
-
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                                type="checkbox"
-                                name="referredToAEDepartment"
-                                checked={formData.referredToAEDepartment}
-                                onChange={handleChange}
-                                className="mt-1"
-                            />
-                            <span>Accident & Emergency Department</span>
-                            </label>
-
-                            <label className="flex items-start gap-3 text-sm text-slate-700">
-                            <input
-                                type="checkbox"
-                                name="referredToGP"
-                                checked={formData.referredToGP}
-                                onChange={handleChange}
-                                className="mt-1"
-                            />
-                            <span>General Practitioner (GP)</span>
-                            </label>
-
-                            <label className="flex items-start gap-3 text-sm text-slate-700 md:col-span-2">
-                            <input
-                                type="checkbox"
-                                name="referredToOther"
-                                checked={formData.referredToOther}
-                                onChange={handleChange}
-                                className="mt-1"
-                            />
-                            <span>Other (please specify)</span>
-                            </label>
-                        </div>
-
-                        {formData.referredToOther && (
-                            <textarea
-                            name="referredToOtherDetails"
-                            placeholder="Specify other referral destination"
-                            value={formData.referredToOtherDetails}
-                            onChange={handleChange}
-                            className={getInputClass("referredToOtherDetails") + " mt-3 h-20"}
-                            />
-                        )}
-
-                        {errors.referredTo && (
-                            <p className="mt-2 text-sm text-red-500">{errors.referredTo}</p>
-                        )}
-
-                        {errors.referredToOtherDetails && (
-                            <p className="mt-2 text-sm text-red-500">
-                            {errors.referredToOtherDetails}
-                            </p>
-                        )}
-                        </div>
-                    )}
-
-                    {(formData.outcomePOMSupplied) && (
-                        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
-                  <h3 className="mb-4 text-lg font-semibold text-amber-800">
-                            8.2 Medicine Prescribed / Supplied
-                        </h3>
-
-                        <p className="text-sm text-slate-600">
-                            Please see Protocol and SPCs for dosage and notes for each individual medicinal product.
-                        </p>
-
-                        <div className="space-y-6">
-                            <div>
-                            <h4 className="mb-3 font-semibold text-slate-900">
-                                Allergic Rhinitis – Nasal Sprays
-                            </h4>
-
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_INCS_SecondGen" checked={formData.med_INCS_SecondGen} onChange={handleChange} className="mt-1" />
-                                    <span>Intranasal Corticosteroid Spray (INCS) – Second Generation Glucocorticoid</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_INCS_INAH" checked={formData.med_INCS_INAH} onChange={handleChange} className="mt-1" />
-                                    <span>INCS + Intranasal Antihistamine (INAH)</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_INCS_FirstGen" checked={formData.med_INCS_FirstGen} onChange={handleChange} className="mt-1" />
-                                    <span>INCS – First Generation Glucocorticoid (over 18 only)</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_INAH" checked={formData.med_INAH} onChange={handleChange} className="mt-1" />
-                                    <span>INAH – Antihistamine Nasal Spray</span>
-                                </label>
-                                </div>
-
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_FluticasoneFuroate" checked={formData.med_FluticasoneFuroate} onChange={handleChange} className="mt-1" />
-                                    <span>Fluticasone furoate 27.5 micrograms per spray, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_FluticasonePropionate" checked={formData.med_FluticasonePropionate} onChange={handleChange} className="mt-1" />
-                                    <span>Fluticasone propionate 50 micrograms, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Mometasone" checked={formData.med_Mometasone} onChange={handleChange} className="mt-1" />
-                                    <span>Mometasone 50 micrograms, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_AzelastineFluticasone" checked={formData.med_AzelastineFluticasone} onChange={handleChange} className="mt-1" />
-                                    <span>Azelastine/fluticasone propionate 137 micrograms/50 micrograms per actuation, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_MometasoneOlopatadine" checked={formData.med_MometasoneOlopatadine} onChange={handleChange} className="mt-1" />
-                                    <span>Mometasone/Olopatadine 25 microgram/600 microgram per actuation, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Beclometasone" checked={formData.med_Beclometasone} onChange={handleChange} className="mt-1" />
-                                    <span>Beclometasone Dipropionate 50 micrograms, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Triamcinolone" checked={formData.med_Triamcinolone} onChange={handleChange} className="mt-1" />
-                                    <span>Triamcinolone acetonide 55 micrograms per dose, nasal spray</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_AzelastineHydrochloride" checked={formData.med_AzelastineHydrochloride} onChange={handleChange} className="mt-1" />
-                                    <span>Azelastine Hydrochloride 140 micrograms per spray, nasal spray</span>
-                                </label>
-                                </div>
-                            </div>
-                            </div>
-
-                            <div>
-                            <h4 className="mb-3 font-semibold text-slate-900">
-                                Allergic Rhinitis – Minimally sedating oral antihistamines
-                            </h4>
-
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_SecondGenAntihistamines" checked={formData.med_SecondGenAntihistamines} onChange={handleChange} className="mt-1" />
-                                    <span>Second Generation Antihistamines (minimally sedating antihistamines)</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_ThirdGenAntihistamines" checked={formData.med_ThirdGenAntihistamines} onChange={handleChange} className="mt-1" />
-                                    <span>Third Generation Antihistamines</span>
-                                </label>
-                                </div>
-
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Cetirizine10mgTablets" checked={formData.med_Cetirizine10mgTablets} onChange={handleChange} className="mt-1" />
-                                    <span>Cetirizine dihydrochloride 10 mg tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Cetirizine1mgmlOral" checked={formData.med_Cetirizine1mgmlOral} onChange={handleChange} className="mt-1" />
-                                    <span>Cetirizine dihydrochloride 1 mg/ml oral solution</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Loratadine10mgTablets" checked={formData.med_Loratadine10mgTablets} onChange={handleChange} className="mt-1" />
-                                    <span>Loratadine 10 mg tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Bilastine10mgODT" checked={formData.med_Bilastine10mgODT} onChange={handleChange} className="mt-1" />
-                                    <span>Bilastine 10 mg orodispersible tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Bilastine20mgTablets" checked={formData.med_Bilastine20mgTablets} onChange={handleChange} className="mt-1" />
-                                    <span>Bilastine 20 mg tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Bilastine25mgmlOral" checked={formData.med_Bilastine25mgmlOral} onChange={handleChange} className="mt-1" />
-                                    <span>Bilastine 2.5 mg/ml oral solution</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Desloratadine5mgTablets" checked={formData.med_Desloratadine5mgTablets} onChange={handleChange} className="mt-1" />
-                                    <span>Desloratadine 5 mg tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Desloratadine05mgmlOral" checked={formData.med_Desloratadine05mgmlOral} onChange={handleChange} className="mt-1" />
-                                    <span>Desloratadine 0.5 mg/ml oral solution</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Fexofenadine120mg" checked={formData.med_Fexofenadine120mg} onChange={handleChange} className="mt-1" />
-                                    <span>Fexofenadine 120mg</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Levocetirizine5mgTablets" checked={formData.med_Levocetirizine5mgTablets} onChange={handleChange} className="mt-1" />
-                                    <span>Levocetirizine 5mg tablets</span>
-                                </label>
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Levocetirizine05mgmlOral" checked={formData.med_Levocetirizine05mgmlOral} onChange={handleChange} className="mt-1" />
-                                    <span>Levocetirizine 0.5mg/ml oral solution</span>
-                                </label>
-                                </div>
-                            </div>
-                            </div>
-
-                            <div>
-                            <h4 className="mb-3 font-semibold text-slate-900">
-                                Allergic Conjunctivitis
-                            </h4>
-
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_IOC" checked={formData.med_IOC} onChange={handleChange} className="mt-1" />
-                                    <span>IOC – Intraocular Cromone (Mast cell stabiliser)</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_IOAH" checked={formData.med_IOAH} onChange={handleChange} className="mt-1" />
-                                    <span>IOAH – Intraocular antihistamine</span>
-                                </label>
-                                </div>
-
-                                <div className="space-y-3">
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_SodiumCromoglicate" checked={formData.med_SodiumCromoglicate} onChange={handleChange} className="mt-1" />
-                                    <span>Sodium cromoglicate 2% w/v eye drops, solution</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_Ketotifen" checked={formData.med_Ketotifen} onChange={handleChange} className="mt-1" />
-                                    <span>Ketotifen 0.25mg/ml eye drops, solution</span>
-                                </label>
-
-                                <label className="flex items-start gap-3 text-sm text-slate-700">
-                                    <input type="checkbox" name="med_OlopatadineEyeDrops" checked={formData.med_OlopatadineEyeDrops} onChange={handleChange} className="mt-1" />
-                                    <span>Olopatadine hydrochloride 1mg/ml eye drops, solution</span>
-                                </label>
-                                </div>
-                            </div>
-                            </div>
-                        </div>
-                        </div>
-                    )}
-                    </div>
-
-                    <div className="mt-8 flex justify-between">
-                    <button
-                        type="button"
-                        onClick={prevStep}
-                        className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                    >
-                        Back
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={nextStep}
-                        className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                    >
-                        Next Step
-                    </button>
-                    </div>
+                  {errors.consultationOutcome && (
+                    <p className="mt-2 text-sm text-red-500">{errors.consultationOutcome}</p>
+                  )}
                 </div>
-                )}
-                {step === 9 && (
+
                 <div>
-                    <h2 className="mb-6 text-2xl font-semibold text-slate-900">
-                    Pharmacist Information
-                    </h2>
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      name="patientDeclinedTreatment"
+                      checked={formData.patientDeclinedTreatment}
+                      onChange={handleChange}
+                      className="mt-1"
+                    />
+                    <span>Patient has declined treatment, please give reason:</span>
+                  </label>
+
+                  {formData.patientDeclinedTreatment && (
+                    <textarea
+                      name="declinedReason"
+                      placeholder="Enter reason"
+                      value={formData.declinedReason}
+                      onChange={handleChange}
+                      className={getInputClass("declinedReason") + " mt-3 h-24"}
+                    />
+                  )}
+
+                  {errors.declinedReason && (
+                    <p className="mt-1 text-sm text-red-500">{errors.declinedReason}</p>
+                  )}
+                </div>
+
+                {formData.outcomeReferral && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                    <h3 className="mb-4 text-lg font-semibold text-amber-800">
+                      8.1 Referred to
+                    </h3>
+
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      <label className="flex items-start gap-3 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          name="referredToAEDepartment"
+                          checked={formData.referredToAEDepartment}
+                          onChange={handleChange}
+                          className="mt-1"
+                        />
+                        <span>Accident & Emergency Department</span>
+                      </label>
+
+                      <label className="flex items-start gap-3 text-sm text-slate-700">
+                        <input
+                          type="checkbox"
+                          name="referredToGP"
+                          checked={formData.referredToGP}
+                          onChange={handleChange}
+                          className="mt-1"
+                        />
+                        <span>General Practitioner (GP)</span>
+                      </label>
+
+                      <label className="flex items-start gap-3 text-sm text-slate-700 md:col-span-2">
+                        <input
+                          type="checkbox"
+                          name="referredToOther"
+                          checked={formData.referredToOther}
+                          onChange={handleChange}
+                          className="mt-1"
+                        />
+                        <span>Other (please specify)</span>
+                      </label>
+                    </div>
+
+                    {formData.referredToOther && (
+                      <textarea
+                        name="referredToOtherDetails"
+                        placeholder="Specify other referral destination"
+                        value={formData.referredToOtherDetails}
+                        onChange={handleChange}
+                        className={getInputClass("referredToOtherDetails") + " mt-3 h-20"}
+                      />
+                    )}
+
+                    {errors.referredTo && (
+                      <p className="mt-2 text-sm text-red-500">{errors.referredTo}</p>
+                    )}
+
+                    {errors.referredToOtherDetails && (
+                      <p className="mt-2 text-sm text-red-500">
+                        {errors.referredToOtherDetails}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {(formData.outcomePOMSupplied) && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
+                    <h3 className="mb-4 text-lg font-semibold text-amber-800">
+                      8.2 Medicine Prescribed / Supplied
+                    </h3>
+
+                    <p className="text-sm text-slate-600">
+                      Please see Protocol and SPCs for dosage and notes for each individual medicinal product.
+                    </p>
 
                     <div className="space-y-6">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            First & Last Name
-                        </label>
-                        <input
-                            name="pharmacistName"
-                            placeholder="Enter pharmacist name"
-                            value={formData.pharmacistName}
-                            onChange={handleChange}
-                            className={getInputClass("pharmacistName")}
-                        />
-                        {errors.pharmacistName && (
-                            <p className="mt-1 text-sm text-red-500">{errors.pharmacistName}</p>
-                        )}
-                        </div>
+                      <div>
+                        <h4 className="mb-3 font-semibold text-slate-900">
+                          Allergic Rhinitis – Nasal Sprays
+                        </h4>
 
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            Pharmacy Address
-                        </label>
-                        <input
-                            name="pharmacyAddress"
-                            placeholder="Enter pharmacy address"
-                            value={formData.pharmacyAddress}
-                            onChange={handleChange}
-                            className={getInputClass("pharmacyAddress")}
-                        />
-                        {errors.pharmacyAddress && (
-                            <p className="mt-1 text-sm text-red-500">{errors.pharmacyAddress}</p>
-                        )}
-                        </div>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_INCS_SecondGen" checked={formData.med_INCS_SecondGen} onChange={handleChange} className="mt-1" />
+                              <span>Intranasal Corticosteroid Spray (INCS) – Second Generation Glucocorticoid</span>
+                            </label>
 
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            PSI No.
-                        </label>
-                        <input
-                            name="psiNumber"
-                            placeholder="Enter PSI number"
-                            value={formData.psiNumber}
-                            onChange={handleChange}
-                            className={getInputClass("psiNumber")}
-                        />
-                        {errors.psiNumber && (
-                            <p className="mt-1 text-sm text-red-500">{errors.psiNumber}</p>
-                        )}
-                        </div>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_INCS_INAH" checked={formData.med_INCS_INAH} onChange={handleChange} className="mt-1" />
+                              <span>INCS + Intranasal Antihistamine (INAH)</span>
+                            </label>
 
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            Eircode
-                        </label>
-                        <input
-                            name="pharmacyEircode"
-                            placeholder="Enter eircode"
-                            value={formData.pharmacyEircode}
-                            onChange={handleChange}
-                            className={getInputClass("pharmacyEircode")}
-                        />
-                        {errors.pharmacyEircode && (
-                            <p className="mt-1 text-sm text-red-500">{errors.pharmacyEircode}</p>
-                        )}
-                        </div>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_INCS_FirstGen" checked={formData.med_INCS_FirstGen} onChange={handleChange} className="mt-1" />
+                              <span>INCS – First Generation Glucocorticoid (over 18 only)</span>
+                            </label>
 
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            Pharmacist Signature
-                        </label>
-                        <input
-                            name="pharmacistSignature"
-                            placeholder="Type full name as signature"
-                            value={formData.pharmacistSignature}
-                            onChange={handleChange}
-                            className={getInputClass("pharmacistSignature")}
-                        />
-                        {errors.pharmacistSignature && (
-                            <p className="mt-1 text-sm text-red-500">
-                            {errors.pharmacistSignature}
-                            </p>
-                        )}
-                        </div>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_INAH" checked={formData.med_INAH} onChange={handleChange} className="mt-1" />
+                              <span>INAH – Antihistamine Nasal Spray</span>
+                            </label>
+                          </div>
 
-                        <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-700">
-                            Date
-                        </label>
-                        <input
-                            type="date"
-                            name="pharmacistDate"
-                            value={formData.pharmacistDate}
-                            onChange={handleChange}
-                            className={getInputClass("pharmacistDate")}
-                        />
-                        {errors.pharmacistDate && (
-                            <p className="mt-1 text-sm text-red-500">{errors.pharmacistDate}</p>
-                        )}
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_FluticasoneFuroate" checked={formData.med_FluticasoneFuroate} onChange={handleChange} className="mt-1" />
+                              <span>Fluticasone furoate 27.5 micrograms per spray, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_FluticasonePropionate" checked={formData.med_FluticasonePropionate} onChange={handleChange} className="mt-1" />
+                              <span>Fluticasone propionate 50 micrograms, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Mometasone" checked={formData.med_Mometasone} onChange={handleChange} className="mt-1" />
+                              <span>Mometasone 50 micrograms, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_AzelastineFluticasone" checked={formData.med_AzelastineFluticasone} onChange={handleChange} className="mt-1" />
+                              <span>Azelastine/fluticasone propionate 137 micrograms/50 micrograms per actuation, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_MometasoneOlopatadine" checked={formData.med_MometasoneOlopatadine} onChange={handleChange} className="mt-1" />
+                              <span>Mometasone/Olopatadine 25 microgram/600 microgram per actuation, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Beclometasone" checked={formData.med_Beclometasone} onChange={handleChange} className="mt-1" />
+                              <span>Beclometasone Dipropionate 50 micrograms, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Triamcinolone" checked={formData.med_Triamcinolone} onChange={handleChange} className="mt-1" />
+                              <span>Triamcinolone acetonide 55 micrograms per dose, nasal spray</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_AzelastineHydrochloride" checked={formData.med_AzelastineHydrochloride} onChange={handleChange} className="mt-1" />
+                              <span>Azelastine Hydrochloride 140 micrograms per spray, nasal spray</span>
+                            </label>
+                          </div>
                         </div>
+                      </div>
+
+                      <div>
+                        <h4 className="mb-3 font-semibold text-slate-900">
+                          Allergic Rhinitis – Minimally sedating oral antihistamines
+                        </h4>
+
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_SecondGenAntihistamines" checked={formData.med_SecondGenAntihistamines} onChange={handleChange} className="mt-1" />
+                              <span>Second Generation Antihistamines (minimally sedating antihistamines)</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_ThirdGenAntihistamines" checked={formData.med_ThirdGenAntihistamines} onChange={handleChange} className="mt-1" />
+                              <span>Third Generation Antihistamines</span>
+                            </label>
+                          </div>
+
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Cetirizine10mgTablets" checked={formData.med_Cetirizine10mgTablets} onChange={handleChange} className="mt-1" />
+                              <span>Cetirizine dihydrochloride 10 mg tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Cetirizine1mgmlOral" checked={formData.med_Cetirizine1mgmlOral} onChange={handleChange} className="mt-1" />
+                              <span>Cetirizine dihydrochloride 1 mg/ml oral solution</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Loratadine10mgTablets" checked={formData.med_Loratadine10mgTablets} onChange={handleChange} className="mt-1" />
+                              <span>Loratadine 10 mg tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Bilastine10mgODT" checked={formData.med_Bilastine10mgODT} onChange={handleChange} className="mt-1" />
+                              <span>Bilastine 10 mg orodispersible tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Bilastine20mgTablets" checked={formData.med_Bilastine20mgTablets} onChange={handleChange} className="mt-1" />
+                              <span>Bilastine 20 mg tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Bilastine25mgmlOral" checked={formData.med_Bilastine25mgmlOral} onChange={handleChange} className="mt-1" />
+                              <span>Bilastine 2.5 mg/ml oral solution</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Desloratadine5mgTablets" checked={formData.med_Desloratadine5mgTablets} onChange={handleChange} className="mt-1" />
+                              <span>Desloratadine 5 mg tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Desloratadine05mgmlOral" checked={formData.med_Desloratadine05mgmlOral} onChange={handleChange} className="mt-1" />
+                              <span>Desloratadine 0.5 mg/ml oral solution</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Fexofenadine120mg" checked={formData.med_Fexofenadine120mg} onChange={handleChange} className="mt-1" />
+                              <span>Fexofenadine 120mg</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Levocetirizine5mgTablets" checked={formData.med_Levocetirizine5mgTablets} onChange={handleChange} className="mt-1" />
+                              <span>Levocetirizine 5mg tablets</span>
+                            </label>
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Levocetirizine05mgmlOral" checked={formData.med_Levocetirizine05mgmlOral} onChange={handleChange} className="mt-1" />
+                              <span>Levocetirizine 0.5mg/ml oral solution</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="mb-3 font-semibold text-slate-900">
+                          Allergic Conjunctivitis
+                        </h4>
+
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_IOC" checked={formData.med_IOC} onChange={handleChange} className="mt-1" />
+                              <span>IOC – Intraocular Cromone (Mast cell stabiliser)</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_IOAH" checked={formData.med_IOAH} onChange={handleChange} className="mt-1" />
+                              <span>IOAH – Intraocular antihistamine</span>
+                            </label>
+                          </div>
+
+                          <div className="space-y-3">
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_SodiumCromoglicate" checked={formData.med_SodiumCromoglicate} onChange={handleChange} className="mt-1" />
+                              <span>Sodium cromoglicate 2% w/v eye drops, solution</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_Ketotifen" checked={formData.med_Ketotifen} onChange={handleChange} className="mt-1" />
+                              <span>Ketotifen 0.25mg/ml eye drops, solution</span>
+                            </label>
+
+                            <label className="flex items-start gap-3 text-sm text-slate-700">
+                              <input type="checkbox" name="med_OlopatadineEyeDrops" checked={formData.med_OlopatadineEyeDrops} onChange={handleChange} className="mt-1" />
+                              <span>Olopatadine hydrochloride 1mg/ml eye drops, solution</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    </div>
-
-                    <div className="mt-8 flex justify-between">
-                    <button
-                        type="button"
-                        onClick={prevStep}
-                        className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                    >
-                        Back
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={nextStep}
-                        className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                    >
-                        Next Step
-                        </button>
-                    </div>
-                </div>
+                  </div>
                 )}
-                {step === 10 && (
-                    <div>
-                        <h2 className="mb-6 text-2xl font-semibold text-slate-900">
-                        Consultation Overview
-                        </h2>
+              </div>
 
-                        <div className="space-y-6">
-                        {/* Step 1 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            1. Personal Details
-                            </h3>
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Back
+                </button>
 
-                            <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
-                            <p><span className="font-medium">Patient Name:</span> {formData.patientName || "-"}</p>
-                            <p><span className="font-medium">Contact:</span> {formData.contact || "-"}</p>
-                            <p><span className="font-medium">Address:</span> {formData.address || "-"}</p>
-                            <p><span className="font-medium">Eircode:</span> {formData.eircode || "-"}</p>
-                            <p><span className="font-medium">PPSN:</span> {formData.ppsn || "-"}</p>
-                            <p><span className="font-medium">Scheme Number:</span> {formData.schemeNumber || "-"}</p>
-                            <p><span className="font-medium">Scheme Type:</span> {formData.schemeType || "-"}</p>
-                            <p><span className="font-medium">DOB:</span> {formData.dob || "-"}</p>
-                            <p><span className="font-medium">Age:</span> {age || "-"}</p>
-                            <p><span className="font-medium">Sex:</span> {formData.sex || "-"}</p>
-                            <p><span className="font-medium">GP Name:</span> {formData.gpName || "-"}</p>
-                            <p><span className="font-medium">GP Contact:</span> {formData.gpContact || "-"}</p>
-                            <p className="md:col-span-2"><span className="font-medium">GP Address:</span> {formData.gpAddress || "-"}</p>
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                >
+                  Next Step
+                </button>
+              </div>
+            </div>
+          )}
+          {step === 9 && (
+            <div>
+              <h2 className="mb-6 text-2xl font-semibold text-slate-900">
+                Pharmacist Information
+              </h2>
 
-                            {isUnder16 && (
-                                <p className="md:col-span-2">
-                                <span className="font-medium">Guardian:</span> {formData.guardian || "-"}
-                                </p>
-                            )}
-                            </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            2. Presenting Complaint
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Symptoms:</span> {formData.symptoms || "-"}</p>
-                            <p><span className="font-medium">Medication Tried:</span> {formData.medicationTried || "-"}</p>
-                            <p><span className="font-medium">Medication List:</span> {formData.medicationList || "-"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            3. Medical History
-                            </h3>
-
-                            <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
-                            <p><span className="font-medium">Medical Conditions:</span> {formData.medicalConditions || "-"}</p>
-                            <p><span className="font-medium">Pregnant:</span> {formData.pregnant ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Breastfeeding:</span> {formData.breastfeeding ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Renal Impairment:</span> {formData.renalImpairment || "-"}</p>
-                            <p><span className="font-medium">Hepatic Impairment:</span> {formData.hepaticImpairment || "-"}</p>
-                            <p><span className="font-medium">Allergy Status:</span> {formData.allergyStatus || "-"}</p>
-                            <p className="md:col-span-2"><span className="font-medium">Existing Medication:</span> {formData.existingMedication || "-"}</p>
-                            <p><span className="font-medium">Resistance Aware:</span> {formData.resistanceAware || "-"}</p>
-                            <p className="md:col-span-2"><span className="font-medium">Resistance Details:</span> {formData.resistanceDetails || "-"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 4 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            4. Red Flags and Referral Criteria
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Emergency Flags:</span> {formData.emergencyFlags.length > 0 ? formData.emergencyFlags.join(", ") : "-"}</p>
-                            <p><span className="font-medium">Referral Flags:</span> {formData.referralFlags.length > 0 ? formData.referralFlags.join(", ") : "-"}</p>
-                            <p><span className="font-medium">Initial Limited Supply Flags:</span> {formData.limitedSupplyFlags.length > 0 ? formData.limitedSupplyFlags.join(", ") : "-"}</p>
-                            <p><span className="font-medium">Any Red Flags Present:</span> {formData.hasRedFlags || "-"}</p>
-                            <p><span className="font-medium">Referral Reason:</span> {formData.referralReason || "-"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 5 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            5. Review of Symptoms
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Rhinorrhoea:</span> {formData.symptomRhinorrhoea ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Sneezing:</span> {formData.symptomSneezing ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Itchy Nose / Eyes / Palate:</span> {formData.symptomItchyNoseEyesPalate ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Nasal Congestion:</span> {formData.symptomNasalCongestion ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Irritability / Fatigue:</span> {formData.symptomIrritabilityFatigue ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Transverse Nasal Crease:</span> {formData.symptomTransverseNasalCrease ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Reduction of Smell:</span> {formData.symptomReductionOfSmell ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Rhinitis with Conjunctivitis:</span> {formData.symptomRhinitisWithConjunctivitis ? "Yes" : "No"}</p>
-
-                            <p><span className="font-medium">Red Eye:</span> {formData.symptomRedEye ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Eye Itching:</span> {formData.symptomEyeItching ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Pink Swelling Eyelid:</span> {formData.symptomPinkSwellingEyelid ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Watery / Stringy Discharge:</span> {formData.symptomWateryStringyDischarge ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Grittiness / Burning / Irritation:</span> {formData.symptomGrittinessBurningIrritation ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Crusting in Morning:</span> {formData.symptomCrustingMorning ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Accompanied by Rhinitis:</span> {formData.symptomAccompaniedByRhinitis ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Unilateral or Bilateral:</span> {formData.symptomUnilateralOrBilateral ? "Yes" : "No"}</p>
-
-                            <p><span className="font-medium">Symptoms Typical:</span> {formData.symptomsTypical || "-"}</p>
-                            <p><span className="font-medium">Typical Condition Type:</span> {formData.typicalConditionType || "-"}</p>
-                            <p><span className="font-medium">Symptoms Referral Reason:</span> {formData.symptomsReferralReason || "-"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 6 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            6. Treatment Options
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Meets Inclusion Criteria:</span> {formData.meetsInclusionCriteria ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Proceed With Prescribing:</span> {formData.proceedWithPrescribing ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Advice And Counselling:</span> {formData.adviceAndCounselling ? "Yes" : "No"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 7 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            7. Patient Declaration
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Clinical Info Sharing Agreed:</span> {formData.declarationClinicalInfoSharing ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Dispensing Choice Statement Agreed:</span> {formData.declarationDispensingChoice ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Dispense To Another Pharmacy:</span> {formData.dispenseToAnotherPharmacy ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Dispense In This Pharmacy:</span> {formData.dispenseInThisPharmacy ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Consent Signature:</span> {formData.consentSignature || "-"}</p>
-                            <p><span className="font-medium">Consent Date:</span> {formData.consentDate || "-"}</p>
-
-                            {isUnder16 && (
-                                <p><span className="font-medium">Guardian Consent Signature:</span> {formData.guardianConsentSignature || "-"}</p>
-                            )}
-                            </div>
-                        </div>
-
-                        {/* Step 8 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            8. Consultation Outcome
-                            </h3>
-
-                            <div className="space-y-3 text-sm text-slate-700">
-                            <p><span className="font-medium">Referral:</span> {formData.outcomeReferral ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Self-care:</span> {formData.outcomeSelfCare ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">OTC Product Supplied:</span> {formData.outcomeOTCSupplied ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Prescription for POM Supplied:</span> {formData.outcomePOMSupplied ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Patient Declined Treatment:</span> {formData.patientDeclinedTreatment ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Declined Reason:</span> {formData.declinedReason || "-"}</p>
-
-                            <p><span className="font-medium">Referred to A&E:</span> {formData.referredToAEDepartment ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Referred to GP:</span> {formData.referredToGP ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Referred to Other:</span> {formData.referredToOther ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Other Referral Details:</span> {formData.referredToOtherDetails || "-"}</p>
-
-                            <p><span className="font-medium">INCS Second Gen:</span> {formData.med_INCS_SecondGen ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Fluticasone Furoate:</span> {formData.med_FluticasoneFuroate ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Fluticasone Propionate:</span> {formData.med_FluticasonePropionate ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Mometasone:</span> {formData.med_Mometasone ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">INCS + INAH:</span> {formData.med_INCS_INAH ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Azelastine / Fluticasone:</span> {formData.med_AzelastineFluticasone ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Mometasone / Olopatadine:</span> {formData.med_MometasoneOlopatadine ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">INCS First Gen:</span> {formData.med_INCS_FirstGen ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Beclometasone:</span> {formData.med_Beclometasone ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Triamcinolone:</span> {formData.med_Triamcinolone ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">INAH:</span> {formData.med_INAH ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Azelastine Hydrochloride:</span> {formData.med_AzelastineHydrochloride ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Second Gen Antihistamines:</span> {formData.med_SecondGenAntihistamines ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Cetirizine 10mg Tablets:</span> {formData.med_Cetirizine10mgTablets ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Cetirizine Oral Solution:</span> {formData.med_Cetirizine1mgmlOral ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Loratadine 10mg Tablets:</span> {formData.med_Loratadine10mgTablets ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Bilastine 10mg ODT:</span> {formData.med_Bilastine10mgODT ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Bilastine 20mg Tablets:</span> {formData.med_Bilastine20mgTablets ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Bilastine Oral Solution:</span> {formData.med_Bilastine25mgmlOral ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Third Gen Antihistamines:</span> {formData.med_ThirdGenAntihistamines ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Desloratadine 5mg Tablets:</span> {formData.med_Desloratadine5mgTablets ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Desloratadine Oral Solution:</span> {formData.med_Desloratadine05mgmlOral ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Fexofenadine 120mg:</span> {formData.med_Fexofenadine120mg ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Levocetirizine 5mg Tablets:</span> {formData.med_Levocetirizine5mgTablets ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Levocetirizine Oral Solution:</span> {formData.med_Levocetirizine05mgmlOral ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">IOC:</span> {formData.med_IOC ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Sodium Cromoglicate:</span> {formData.med_SodiumCromoglicate ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">IOAH:</span> {formData.med_IOAH ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Ketotifen:</span> {formData.med_Ketotifen ? "Yes" : "No"}</p>
-                            <p><span className="font-medium">Olopatadine Eye Drops:</span> {formData.med_OlopatadineEyeDrops ? "Yes" : "No"}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 9 */}
-                        <div className="rounded-xl border border-slate-200 p-6">
-                            <h3 className="mb-4 text-lg font-semibold text-slate-900">
-                            9. Pharmacist Information
-                            </h3>
-
-                            <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
-                            <p><span className="font-medium">Pharmacist Name:</span> {formData.pharmacistName || "-"}</p>
-                            <p><span className="font-medium">PSI Number:</span> {formData.psiNumber || "-"}</p>
-                            <p><span className="font-medium">Pharmacy Address:</span> {formData.pharmacyAddress || "-"}</p>
-                            <p><span className="font-medium">Pharmacy Eircode:</span> {formData.pharmacyEircode || "-"}</p>
-                            <p><span className="font-medium">Pharmacist Signature:</span> {formData.pharmacistSignature || "-"}</p>
-                            <p><span className="font-medium">Pharmacist Date:</span> {formData.pharmacistDate || "-"}</p>
-                            </div>
-                        </div>
-                        </div>
-
-                        <div className="mt-8 flex flex-wrap justify-between gap-4">
-                        <button
-                            type="button"
-                            onClick={prevStep}
-                            className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                        >
-                            Back
-                        </button>
-
-                        <div className="flex flex-wrap gap-3">
-                            <button
-                            type="button"
-                            onClick={handlePrintConsultation}
-                            className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                            >
-                            Print
-                            </button>
-
-                            <button
-                            type="button"
-                            onClick={handleSaveAndFinish}
-                            className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
-                            >
-                            Save & Finish
-                            </button>
-                        </div>
-                        </div>
-                    </div>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      First & Last Name
+                    </label>
+                    <input
+                      name="pharmacistName"
+                      placeholder="Enter pharmacist name"
+                      value={formData.pharmacistName}
+                      onChange={handleChange}
+                      className={getInputClass("pharmacistName")}
+                    />
+                    {errors.pharmacistName && (
+                      <p className="mt-1 text-sm text-red-500">{errors.pharmacistName}</p>
                     )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Pharmacy Address
+                    </label>
+                    <input
+                      name="pharmacyAddress"
+                      placeholder="Enter pharmacy address"
+                      value={formData.pharmacyAddress}
+                      onChange={handleChange}
+                      className={getInputClass("pharmacyAddress")}
+                    />
+                    {errors.pharmacyAddress && (
+                      <p className="mt-1 text-sm text-red-500">{errors.pharmacyAddress}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      PSI No.
+                    </label>
+                    <input
+                      name="psiNumber"
+                      placeholder="Enter PSI number"
+                      value={formData.psiNumber}
+                      onChange={handleChange}
+                      className={getInputClass("psiNumber")}
+                    />
+                    {errors.psiNumber && (
+                      <p className="mt-1 text-sm text-red-500">{errors.psiNumber}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Eircode
+                    </label>
+                    <input
+                      name="pharmacyEircode"
+                      placeholder="Enter eircode"
+                      value={formData.pharmacyEircode}
+                      onChange={handleChange}
+                      className={getInputClass("pharmacyEircode")}
+                    />
+                    {errors.pharmacyEircode && (
+                      <p className="mt-1 text-sm text-red-500">{errors.pharmacyEircode}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Pharmacist Signature
+                    </label>
+                    <input
+                      name="pharmacistSignature"
+                      placeholder="Type full name as signature"
+                      value={formData.pharmacistSignature}
+                      onChange={handleChange}
+                      className={getInputClass("pharmacistSignature")}
+                    />
+                    {errors.pharmacistSignature && (
+                      <p className="mt-1 text-sm text-red-500">
+                        {errors.pharmacistSignature}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-700">
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      name="pharmacistDate"
+                      value={formData.pharmacistDate}
+                      onChange={handleChange}
+                      className={getInputClass("pharmacistDate")}
+                    />
+                    {errors.pharmacistDate && (
+                      <p className="mt-1 text-sm text-red-500">{errors.pharmacistDate}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-between">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Back
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
+                >
+                  Next Step
+                </button>
+              </div>
+            </div>
+          )}
+          {step === 10 && (
+            <div>
+              <h2 className="mb-6 text-2xl font-semibold text-slate-900">
+                Consultation Overview
+              </h2>
+
+              <div className="space-y-6">
+                {/* Step 1 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    1. Personal Details
+                  </h3>
+
+                  <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                    <p><span className="font-medium">Patient Name:</span> {formData.patientName || "-"}</p>
+                    <p><span className="font-medium">Contact:</span> {formData.contact || "-"}</p>
+                    <p><span className="font-medium">Address:</span> {formData.address || "-"}</p>
+                    <p><span className="font-medium">Eircode:</span> {formData.eircode || "-"}</p>
+                    <p><span className="font-medium">PPSN:</span> {formData.ppsn || "-"}</p>
+                    <p><span className="font-medium">Scheme Number:</span> {formData.schemeNumber || "-"}</p>
+                    <p><span className="font-medium">Scheme Type:</span> {formData.schemeType || "-"}</p>
+                    <p><span className="font-medium">DOB:</span> {formData.dob || "-"}</p>
+                    <p><span className="font-medium">Age:</span> {age || "-"}</p>
+                    <p><span className="font-medium">Sex:</span> {formData.sex || "-"}</p>
+                    <p><span className="font-medium">GP Name:</span> {formData.gpName || "-"}</p>
+                    <p><span className="font-medium">GP Contact:</span> {formData.gpContact || "-"}</p>
+                    <p className="md:col-span-2"><span className="font-medium">GP Address:</span> {formData.gpAddress || "-"}</p>
+
+                    {isUnder16 && (
+                      <p className="md:col-span-2">
+                        <span className="font-medium">Guardian:</span> {formData.guardian || "-"}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    2. Presenting Complaint
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Symptoms:</span> {formData.symptoms || "-"}</p>
+                    <p><span className="font-medium">Medication Tried:</span> {formData.medicationTried || "-"}</p>
+                    <p><span className="font-medium">Medication List:</span> {formData.medicationList || "-"}</p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    3. Medical History
+                  </h3>
+
+                  <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                    <p><span className="font-medium">Medical Conditions:</span> {formData.medicalConditions || "-"}</p>
+                    <p><span className="font-medium">Pregnant:</span> {formData.pregnant ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Breastfeeding:</span> {formData.breastfeeding ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Renal Impairment:</span> {formData.renalImpairment || "-"}</p>
+                    <p><span className="font-medium">Hepatic Impairment:</span> {formData.hepaticImpairment || "-"}</p>
+                    <p><span className="font-medium">Allergy Status:</span> {formData.allergyStatus || "-"}</p>
+                    <p className="md:col-span-2"><span className="font-medium">Existing Medication:</span> {formData.existingMedication || "-"}</p>
+                    <p><span className="font-medium">Resistance Aware:</span> {formData.resistanceAware || "-"}</p>
+                    <p className="md:col-span-2"><span className="font-medium">Resistance Details:</span> {formData.resistanceDetails || "-"}</p>
+                  </div>
+                </div>
+
+                {/* Step 4 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    4. Red Flags and Referral Criteria
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Emergency Flags:</span> {formData.emergencyFlags.length > 0 ? formData.emergencyFlags.join(", ") : "-"}</p>
+                    <p><span className="font-medium">Referral Flags:</span> {formData.referralFlags.length > 0 ? formData.referralFlags.join(", ") : "-"}</p>
+                    <p><span className="font-medium">Initial Limited Supply Flags:</span> {formData.limitedSupplyFlags.length > 0 ? formData.limitedSupplyFlags.join(", ") : "-"}</p>
+                    <p><span className="font-medium">Any Red Flags Present:</span> {formData.hasRedFlags || "-"}</p>
+                    <p><span className="font-medium">Referral Reason:</span> {formData.referralReason || "-"}</p>
+                  </div>
+                </div>
+
+                {/* Step 5 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    5. Review of Symptoms
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Rhinorrhoea:</span> {formData.symptomRhinorrhoea ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Sneezing:</span> {formData.symptomSneezing ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Itchy Nose / Eyes / Palate:</span> {formData.symptomItchyNoseEyesPalate ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Nasal Congestion:</span> {formData.symptomNasalCongestion ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Irritability / Fatigue:</span> {formData.symptomIrritabilityFatigue ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Transverse Nasal Crease:</span> {formData.symptomTransverseNasalCrease ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Reduction of Smell:</span> {formData.symptomReductionOfSmell ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Rhinitis with Conjunctivitis:</span> {formData.symptomRhinitisWithConjunctivitis ? "Yes" : "No"}</p>
+
+                    <p><span className="font-medium">Red Eye:</span> {formData.symptomRedEye ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Eye Itching:</span> {formData.symptomEyeItching ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Pink Swelling Eyelid:</span> {formData.symptomPinkSwellingEyelid ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Watery / Stringy Discharge:</span> {formData.symptomWateryStringyDischarge ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Grittiness / Burning / Irritation:</span> {formData.symptomGrittinessBurningIrritation ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Crusting in Morning:</span> {formData.symptomCrustingMorning ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Accompanied by Rhinitis:</span> {formData.symptomAccompaniedByRhinitis ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Unilateral or Bilateral:</span> {formData.symptomUnilateralOrBilateral ? "Yes" : "No"}</p>
+
+                    <p><span className="font-medium">Symptoms Typical:</span> {formData.symptomsTypical || "-"}</p>
+                    <p><span className="font-medium">Typical Condition Type:</span> {formData.typicalConditionType || "-"}</p>
+                    <p><span className="font-medium">Symptoms Referral Reason:</span> {formData.symptomsReferralReason || "-"}</p>
+                  </div>
+                </div>
+
+                {/* Step 6 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    6. Treatment Options
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Meets Inclusion Criteria:</span> {formData.meetsInclusionCriteria ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Proceed With Prescribing:</span> {formData.proceedWithPrescribing ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Advice And Counselling:</span> {formData.adviceAndCounselling ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+
+                {/* Step 7 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    7. Patient Declaration
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Clinical Info Sharing Agreed:</span> {formData.declarationClinicalInfoSharing ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Dispensing Choice Statement Agreed:</span> {formData.declarationDispensingChoice ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Dispense To Another Pharmacy:</span> {formData.dispenseToAnotherPharmacy ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Dispense In This Pharmacy:</span> {formData.dispenseInThisPharmacy ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Consent Signature:</span> {formData.consentSignature || "-"}</p>
+                    <p><span className="font-medium">Consent Date:</span> {formData.consentDate || "-"}</p>
+
+                    {isUnder16 && (
+                      <p><span className="font-medium">Guardian Consent Signature:</span> {formData.guardianConsentSignature || "-"}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Step 8 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    8. Consultation Outcome
+                  </h3>
+
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <p><span className="font-medium">Referral:</span> {formData.outcomeReferral ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Self-care:</span> {formData.outcomeSelfCare ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">OTC Product Supplied:</span> {formData.outcomeOTCSupplied ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Prescription for POM Supplied:</span> {formData.outcomePOMSupplied ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Patient Declined Treatment:</span> {formData.patientDeclinedTreatment ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Declined Reason:</span> {formData.declinedReason || "-"}</p>
+
+                    <p><span className="font-medium">Referred to A&E:</span> {formData.referredToAEDepartment ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Referred to GP:</span> {formData.referredToGP ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Referred to Other:</span> {formData.referredToOther ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Other Referral Details:</span> {formData.referredToOtherDetails || "-"}</p>
+
+                    <p><span className="font-medium">INCS Second Gen:</span> {formData.med_INCS_SecondGen ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Fluticasone Furoate:</span> {formData.med_FluticasoneFuroate ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Fluticasone Propionate:</span> {formData.med_FluticasonePropionate ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Mometasone:</span> {formData.med_Mometasone ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">INCS + INAH:</span> {formData.med_INCS_INAH ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Azelastine / Fluticasone:</span> {formData.med_AzelastineFluticasone ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Mometasone / Olopatadine:</span> {formData.med_MometasoneOlopatadine ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">INCS First Gen:</span> {formData.med_INCS_FirstGen ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Beclometasone:</span> {formData.med_Beclometasone ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Triamcinolone:</span> {formData.med_Triamcinolone ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">INAH:</span> {formData.med_INAH ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Azelastine Hydrochloride:</span> {formData.med_AzelastineHydrochloride ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Second Gen Antihistamines:</span> {formData.med_SecondGenAntihistamines ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Cetirizine 10mg Tablets:</span> {formData.med_Cetirizine10mgTablets ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Cetirizine Oral Solution:</span> {formData.med_Cetirizine1mgmlOral ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Loratadine 10mg Tablets:</span> {formData.med_Loratadine10mgTablets ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Bilastine 10mg ODT:</span> {formData.med_Bilastine10mgODT ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Bilastine 20mg Tablets:</span> {formData.med_Bilastine20mgTablets ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Bilastine Oral Solution:</span> {formData.med_Bilastine25mgmlOral ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Third Gen Antihistamines:</span> {formData.med_ThirdGenAntihistamines ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Desloratadine 5mg Tablets:</span> {formData.med_Desloratadine5mgTablets ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Desloratadine Oral Solution:</span> {formData.med_Desloratadine05mgmlOral ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Fexofenadine 120mg:</span> {formData.med_Fexofenadine120mg ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Levocetirizine 5mg Tablets:</span> {formData.med_Levocetirizine5mgTablets ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Levocetirizine Oral Solution:</span> {formData.med_Levocetirizine05mgmlOral ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">IOC:</span> {formData.med_IOC ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Sodium Cromoglicate:</span> {formData.med_SodiumCromoglicate ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">IOAH:</span> {formData.med_IOAH ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Ketotifen:</span> {formData.med_Ketotifen ? "Yes" : "No"}</p>
+                    <p><span className="font-medium">Olopatadine Eye Drops:</span> {formData.med_OlopatadineEyeDrops ? "Yes" : "No"}</p>
+                  </div>
+                </div>
+
+                {/* Step 9 */}
+                <div className="rounded-xl border border-slate-200 p-6">
+                  <h3 className="mb-4 text-lg font-semibold text-slate-900">
+                    9. Pharmacist Information
+                  </h3>
+
+                  <div className="grid grid-cols-1 gap-3 text-sm text-slate-700 md:grid-cols-2">
+                    <p><span className="font-medium">Pharmacist Name:</span> {formData.pharmacistName || "-"}</p>
+                    <p><span className="font-medium">PSI Number:</span> {formData.psiNumber || "-"}</p>
+                    <p><span className="font-medium">Pharmacy Address:</span> {formData.pharmacyAddress || "-"}</p>
+                    <p><span className="font-medium">Pharmacy Eircode:</span> {formData.pharmacyEircode || "-"}</p>
+                    <p><span className="font-medium">Pharmacist Signature:</span> {formData.pharmacistSignature || "-"}</p>
+                    <p><span className="font-medium">Pharmacist Date:</span> {formData.pharmacistDate || "-"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-wrap justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  Back
+                </button>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handlePrintConsultation}
+                    className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Print
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSaveAndFinish}
+                    className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
+                  >
+                    Save & Finish
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </main>

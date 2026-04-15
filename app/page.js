@@ -131,7 +131,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Future Features Row */} 
+          {/* Future Features Row */}
           <div className="rounded-2xl bg-white p-6 shadow-sm">
             <h3 className="text-lg font-semibold text-slate-900">
               Compliance Reports
