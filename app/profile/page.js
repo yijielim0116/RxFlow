@@ -34,6 +34,7 @@ export default function ProfilePage() {
 
     const parsedUser = JSON.parse(storedUser);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(parsedUser);
     setName(parsedUser.name || "");
     setEmail(parsedUser.email || "");

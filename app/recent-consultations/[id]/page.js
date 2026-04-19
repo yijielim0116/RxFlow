@@ -22,6 +22,7 @@ export default function ConsultationDetailsPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(JSON.parse(storedUser));
 
     const storedConsultations =

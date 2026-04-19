@@ -17,6 +17,7 @@ export default function DashboardPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(JSON.parse(storedUser));
   }, [router]);
 
@@ -39,7 +40,7 @@ export default function DashboardPage() {
         </header>
 
         <section className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow-sm md:col-span-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md md:col-span-2">
             <h2 className="text-2xl font-semibold text-slate-900">
               Start Consultation
             </h2>
@@ -58,7 +59,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <h3 className="text-lg font-semibold text-slate-900">
               Quick Overview
             </h3>
@@ -72,7 +73,7 @@ export default function DashboardPage() {
         </section>
 
         <section className="mt-6 grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
             <h3 className="text-lg font-semibold text-slate-900">
               Recent Consultations
             </h3>

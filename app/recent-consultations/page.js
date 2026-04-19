@@ -23,19 +23,13 @@ import {
 export default function RecentConsultationsPage() {
   const router = useRouter();
 
-  // Current logged-in user
   const [user, setUser] = useState(null);
-
-  // All saved consultations from localStorage
   const [consultations, setConsultations] = useState([]);
-
-  // Search + filter states
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("All");
 
-  // Load user + consultations on page load
   useEffect(() => {
     const storedUser = localStorage.getItem("rxflowUser");
 
@@ -44,20 +38,19 @@ export default function RecentConsultationsPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(JSON.parse(storedUser));
 
     const storedConsultations =
       JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
 
-    // Sort newest first
     const sortedConsultations = [...storedConsultations].sort(
-      (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
     );
 
     setConsultations(sortedConsultations);
   }, [router]);
 
-  // Debounce search so filtering doesn't happen on every keystroke instantly
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -66,13 +59,12 @@ export default function RecentConsultationsPage() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Consultation types shown in filter dropdown
   const consultationTypes = [
     { label: "All", value: "All" },
     { label: "Cold Sores", value: "Cold Sores Consultation" },
     {
       label: "Allergic Rhinitis & Allergic Conjunctivitis",
-      value: "Allergic Rhinitis & Allergic Conjunctivitis Consultation",
+      value: "Allergic Rhinitis & Allergic Conjunctivitis",
     },
     { label: "Shingles", value: "Shingles Consultation" },
     { label: "Oral Thrush", value: "Oral Thrush Consultation" },
@@ -87,53 +79,18 @@ export default function RecentConsultationsPage() {
     },
   ];
 
-  // Return correct consultation page route for edit button
-  const getEditLink = (consultation) => {
-    const type = (consultation.type || "").trim();
-
-    switch (type) {
-      case "Cold Sores Consultation":
-        return `/consultation/cold-sores?id=${consultation.id}&mode=edit`;
-
-      case "Allergic Rhinitis & Allergic Conjunctivitis Consultation":
-        return `/consultation/allergic-rhinitis-conjunctivitis?id=${consultation.id}&mode=edit`;
-
-      case "Shingles Consultation":
-        return `/consultation/shingles?id=${consultation.id}&mode=edit`;
-
-      case "Oral Thrush Consultation":
-        return `/consultation/oral-thrush?id=${consultation.id}&mode=edit`;
-
-      case "Vulvovaginal Thrush Consultation":
-        return `/consultation/vulvovaginal-thrush?id=${consultation.id}&mode=edit`;
-
-      case "Impetigo Consultation":
-        return `/consultation/impetigo?id=${consultation.id}&mode=edit`;
-
-      case "Uncomplicated Lower UTI (Cystitis) Consultation":
-        return `/consultation/uti?id=${consultation.id}&mode=edit`;
-
-      // Fallback if type doesn't match anything
-      default:
-        return `/recent-consultations/${consultation.id}`;
-    }
-  };
-
-  // Delete consultation from UI + localStorage
   const handleDeleteConsultation = (id) => {
     const updatedConsultations = consultations.filter(
       (consultation) => consultation.id !== id
     );
 
     setConsultations(updatedConsultations);
-
     localStorage.setItem(
       "rxflowConsultations",
       JSON.stringify(updatedConsultations)
     );
   };
 
-  // Share consultation details
   const handleShareConsultation = async (consultation) => {
     const shareText = `
 Patient: ${consultation.patientName || "-"}
@@ -145,7 +102,7 @@ Date Saved: ${consultation.createdAt
       }
 PPSN: ${consultation.data?.ppsn || "-"}
 Contact: ${consultation.data?.contact || "-"}
-    `.trim();
+  `.trim();
 
     try {
       if (navigator.share) {
@@ -164,7 +121,19 @@ Contact: ${consultation.data?.contact || "-"}
     }
   };
 
-  // Filtered consultation list
+  const getEditLink = (consultation) => {
+    switch ((consultation.type || "").trim()) {
+      case "Cold Sores Consultation":
+        return `/consultation/cold-sores?id=${consultation.id}&mode=edit`;
+
+      case "Allergic Rhinitis & Allergic Conjunctivitis":
+        return `/consultation/allergic-rhinitis?id=${consultation.id}&mode=edit`;
+
+      default:
+        return `/recent-consultations/${consultation.id}`;
+    }
+  };
+
   const filteredConsultations = useMemo(() => {
     const search = debouncedSearch.trim().toLowerCase();
     const now = new Date();
@@ -177,7 +146,6 @@ Contact: ${consultation.data?.contact || "-"}
       const ppsn = consultation.data?.ppsn?.toLowerCase().trim() || "";
       const contact = consultation.data?.contact?.toLowerCase().trim() || "";
 
-      // Search matching
       const matchesSearch =
         !search ||
         patientName.includes(search) ||
@@ -186,12 +154,10 @@ Contact: ${consultation.data?.contact || "-"}
         ppsn.includes(search) ||
         contact.includes(search);
 
-      // Type filter matching
       const matchesType =
         typeFilter === "All" ||
         (consultation.type || "").trim() === typeFilter.trim();
 
-      // Date filter matching
       let matchesDate = true;
 
       if (dateFilter !== "All" && consultation.createdAt) {
@@ -218,12 +184,10 @@ Contact: ${consultation.data?.contact || "-"}
     });
   }, [consultations, debouncedSearch, typeFilter, dateFilter]);
 
-  // Escape search text safely for regex highlight
   const escapeRegExp = (string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   };
 
-  // Highlight matched search text
   const highlightMatch = (text) => {
     if (!text) return "-";
     if (!debouncedSearch.trim()) return text;
@@ -237,7 +201,6 @@ Contact: ${consultation.data?.contact || "-"}
     );
   };
 
-  // Reset all filters
   const clearFilters = () => {
     setSearchTerm("");
     setDebouncedSearch("");
@@ -245,13 +208,12 @@ Contact: ${consultation.data?.contact || "-"}
     setDateFilter("All");
   };
 
-  // Badge colours by consultation type
   const getTypeBadgeClass = (type) => {
     switch ((type || "").trim()) {
       case "Cold Sores Consultation":
         return "bg-rose-50 text-rose-700 border border-rose-200";
 
-      case "Allergic Rhinitis & Allergic Conjunctivitis Consultation":
+      case "Allergic Rhinitis & Allergic Conjunctivitis":
         return "bg-emerald-50 text-emerald-700 border border-emerald-200";
 
       case "Shingles Consultation":
@@ -274,7 +236,6 @@ Contact: ${consultation.data?.contact || "-"}
     }
   };
 
-  // Remove " Consultation" from badge text
   const getDisplayType = (type) => {
     if (!type) return "Consultation";
     return type.replace(" Consultation", "");
@@ -286,11 +247,10 @@ Contact: ${consultation.data?.contact || "-"}
     <main className="min-h-screen bg-slate-100">
       <Navbar user={user} />
 
-      {/* Back button */}
       <div className="mx-auto max-w-6xl px-6 pt-6 md:px-10">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 font-medium text-slate-600 transition hover:-translate-x-1 hover:text-sky-700"
+          className="inline-flex items-center gap-2 text-slate-600 font-medium transition hover:-translate-x-1 hover:text-sky-700"
         >
           <ArrowLeft size={18} />
           <span className="text-sm">Back to Dashboard</span>
@@ -298,7 +258,6 @@ Contact: ${consultation.data?.contact || "-"}
       </div>
 
       <div className="mx-auto max-w-6xl p-6 md:p-10">
-        {/* Header */}
         <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-4xl font-bold text-slate-900">
@@ -310,7 +269,7 @@ Contact: ${consultation.data?.contact || "-"}
           </div>
 
           {consultations.length > 0 && (
-            <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+            <div className="rounded-xl bg-white px-4 py-3 shadow-sm border border-slate-200">
               <p className="text-sm text-slate-500">Results</p>
               <p className="text-2xl font-bold text-slate-900">
                 {filteredConsultations.length}
@@ -319,9 +278,8 @@ Contact: ${consultation.data?.contact || "-"}
           )}
         </div>
 
-        {/* Empty state */}
         {consultations.length === 0 ? (
-          <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+          <div className="rounded-3xl bg-white p-10 text-center shadow-sm border border-slate-200">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-50">
               <FileText className="text-sky-700" size={30} />
             </div>
@@ -346,10 +304,8 @@ Contact: ${consultation.data?.contact || "-"}
           </div>
         ) : (
           <>
-            {/* Search + filters */}
             <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]">
-                {/* Search bar */}
                 <div className="relative">
                   <Search
                     size={18}
@@ -364,7 +320,6 @@ Contact: ${consultation.data?.contact || "-"}
                   />
                 </div>
 
-                {/* Type filter */}
                 <div className="relative">
                   <Filter
                     size={16}
@@ -383,7 +338,6 @@ Contact: ${consultation.data?.contact || "-"}
                   </select>
                 </div>
 
-                {/* Date filter */}
                 <div className="relative">
                   <CalendarDays
                     size={16}
@@ -401,7 +355,6 @@ Contact: ${consultation.data?.contact || "-"}
                   </select>
                 </div>
 
-                {/* Clear button */}
                 <button
                   type="button"
                   onClick={clearFilters}
@@ -412,9 +365,8 @@ Contact: ${consultation.data?.contact || "-"}
               </div>
             </div>
 
-            {/* No filter match state */}
             {filteredConsultations.length === 0 ? (
-              <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <div className="rounded-3xl bg-white p-10 text-center shadow-sm border border-slate-200">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-50">
                   <Search className="text-slate-500" size={28} />
                 </div>
@@ -436,7 +388,6 @@ Contact: ${consultation.data?.contact || "-"}
                     className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
                   >
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                      {/* Left content */}
                       <div className="min-w-0 flex-1">
                         <div className="mb-4 flex flex-wrap items-center gap-3">
                           <h2
@@ -458,7 +409,6 @@ Contact: ${consultation.data?.contact || "-"}
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                          {/* Pharmacist */}
                           <div className="rounded-2xl bg-slate-50 p-4">
                             <div className="mb-2 flex items-center gap-2 text-slate-500">
                               <User size={16} />
@@ -476,7 +426,6 @@ Contact: ${consultation.data?.contact || "-"}
                             />
                           </div>
 
-                          {/* PPSN */}
                           <div className="rounded-2xl bg-slate-50 p-4">
                             <div className="mb-2 flex items-center gap-2 text-slate-500">
                               <BadgePlus size={16} />
@@ -494,7 +443,6 @@ Contact: ${consultation.data?.contact || "-"}
                             />
                           </div>
 
-                          {/* Contact */}
                           <div className="rounded-2xl bg-slate-50 p-4">
                             <div className="mb-2 flex items-center gap-2 text-slate-500">
                               <Phone size={16} />
@@ -512,7 +460,6 @@ Contact: ${consultation.data?.contact || "-"}
                             />
                           </div>
 
-                          {/* Date */}
                           <div className="rounded-2xl bg-slate-50 p-4">
                             <div className="mb-2 flex items-center gap-2 text-slate-500">
                               <CalendarDays size={16} />
@@ -531,7 +478,6 @@ Contact: ${consultation.data?.contact || "-"}
                         </div>
                       </div>
 
-                      {/* Right actions */}
                       <div className="flex flex-row flex-wrap gap-3 lg:w-auto lg:flex-col">
                         <Link
                           href={`/recent-consultations/${consultation.id}`}
@@ -560,9 +506,7 @@ Contact: ${consultation.data?.contact || "-"}
 
                         <button
                           type="button"
-                          onClick={() =>
-                            handleDeleteConsultation(consultation.id)
-                          }
+                          onClick={() => handleDeleteConsultation(consultation.id)}
                           className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-700"
                         >
                           <Trash2 size={16} />
