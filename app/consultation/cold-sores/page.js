@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export default function ColdSoresConsultation() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id");
+  const isEditMode = searchParams.get("mode") === "edit";
 
   const [user, setUser] = useState(null);
   const [step, setStep] = useState(1);
@@ -116,7 +119,16 @@ export default function ColdSoresConsultation() {
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(JSON.parse(storedUser));
-  }, [router]);
+
+    // ── Edit mode: load existing consultation data ──
+    if (isEditMode && editId) {
+      const stored = JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
+      const existing = stored.find((c) => String(c.id) === String(editId));
+      if (existing?.data) {
+        setFormData(existing.data);
+      }
+    }
+  }, [router, isEditMode, editId]);
 
   const age = useMemo(() => {
     if (!formData.dob) return "";
@@ -135,14 +147,16 @@ export default function ColdSoresConsultation() {
 
   if (!user) return null;
 
-  // Helper: show "-" for booleans that were never seen (skipped steps)
+  // ── Display helpers ───────────────────────────────────────────────────────────
+
   const boolDisplay = (value, skipped = false) => {
     if (skipped) return "-";
     return value ? "Yes" : "-";
   };
 
-  // Helper: show string value or "-"
   const strDisplay = (value) => value || "-";
+
+  // ── Handlers ─────────────────────────────────────────────────────────────────
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -166,7 +180,7 @@ export default function ColdSoresConsultation() {
         : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
     }`;
 
-  // ── Validators ──────────────────────────────────────────────────────────────
+  // ── Validators ───────────────────────────────────────────────────────────────
 
   const validateStepOne = () => {
     const e = {};
@@ -280,7 +294,7 @@ export default function ColdSoresConsultation() {
     return e;
   };
 
-  // ── Navigation ───────────────────────────────────────────────────────────────
+  // ── Navigation ────────────────────────────────────────────────────────────────
 
   const nextStep = () => {
     const validators = {
@@ -299,7 +313,6 @@ export default function ColdSoresConsultation() {
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    // Skip steps 5 & 6 if red flag present
     if (step === 4 && formData.redFlagPresent === "Yes") {
       setStep(7);
       return;
@@ -309,7 +322,6 @@ export default function ColdSoresConsultation() {
   };
 
   const prevStep = () => {
-    // Skip back over steps 5 & 6 if red flag was present
     if (step === 7 && formData.redFlagPresent === "Yes") {
       setStep(4);
       return;
@@ -317,50 +329,47 @@ export default function ColdSoresConsultation() {
     setStep((prev) => prev - 1);
   };
 
-  // ── Save ─────────────────────────────────────────────────────────────────────
+  // ── Save ──────────────────────────────────────────────────────────────────────
 
   const handleSaveAndFinish = () => {
     const existing = JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
-    const newConsultation = {
-      id: Date.now(),
-      type: "Cold Sores Consultation",
-      createdAt: new Date().toISOString(),
-      patientName: formData.patientName,
-      pharmacistName: formData.pharmacistName,
-      data: formData,
-    };
-    localStorage.setItem("rxflowConsultations", JSON.stringify([...existing, newConsultation]));
+
+    let updated;
+
+    if (isEditMode && editId) {
+      // Overwrite the existing record, preserve original createdAt
+      updated = existing.map((c) =>
+        String(c.id) === String(editId)
+          ? {
+              ...c,
+              patientName: formData.patientName,
+              pharmacistName: formData.pharmacistName,
+              data: formData,
+            }
+          : c
+      );
+    } else {
+      // Create a new record
+      updated = [
+        ...existing,
+        {
+          id: Date.now(),
+          type: "Cold Sores Consultation",
+          createdAt: new Date().toISOString(),
+          patientName: formData.patientName,
+          pharmacistName: formData.pharmacistName,
+          data: formData,
+        },
+      ];
+    }
+
+    localStorage.setItem("rxflowConsultations", JSON.stringify(updated));
     router.push("/recent-consultations");
   };
 
   const handlePrintConsultation = () => window.print();
 
-  // ── Shared UI helpers ────────────────────────────────────────────────────────
-
-  const NavButtons = ({ hideBack = false }) => (
-    <div className="mt-8 flex justify-between">
-      {!hideBack ? (
-        <button
-          type="button"
-          onClick={prevStep}
-          className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-        >
-          Back
-        </button>
-      ) : (
-        <div />
-      )}
-      <button
-        type="button"
-        onClick={nextStep}
-        className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-      >
-        {hideBack ? "Next" : "Next Step"}
-      </button>
-    </div>
-  );
-
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -368,16 +377,25 @@ export default function ColdSoresConsultation() {
 
       <div className="mx-auto max-w-6xl px-6 pt-6 md:px-10">
         <Link
-          href="/consultation"
+          href={isEditMode ? "/recent-consultations" : "/consultation"}
           className="inline-flex items-center gap-2 text-slate-600 font-medium transition hover:-translate-x-1 hover:text-sky-700"
         >
           <ArrowLeft size={18} />
-          <span className="text-sm">Back to Consultation Types</span>
+          <span className="text-sm">
+            {isEditMode ? "Back to Recent Consultations" : "Back to Consultation Types"}
+          </span>
         </Link>
       </div>
 
       <div className="mx-auto max-w-6xl p-6 md:p-10">
-        <h1 className="mb-6 text-4xl font-bold text-slate-900">Cold Sores Consultation</h1>
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <h1 className="text-4xl font-bold text-slate-900">Cold Sores Consultation</h1>
+          {isEditMode && (
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-700 border border-amber-200">
+              Editing
+            </span>
+          )}
+        </div>
 
         {/* Step indicators */}
         <div className="mb-8 flex flex-wrap gap-4 text-sm">
@@ -411,89 +429,42 @@ export default function ColdSoresConsultation() {
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                  <input
-                    name="patientName"
-                    placeholder="Patient Name"
-                    value={formData.patientName}
-                    onChange={handleChange}
-                    className={getInputClass("patientName")}
-                  />
+                  <input name="patientName" placeholder="Patient Name" value={formData.patientName} onChange={handleChange} className={getInputClass("patientName")} />
                   {errors.patientName && <p className="mt-1 text-sm text-red-500">{errors.patientName}</p>}
                 </div>
 
                 <div>
-                  <input
-                    name="contact"
-                    placeholder="Contact Number"
-                    value={formData.contact}
-                    onChange={handleChange}
-                    className={getInputClass("contact")}
-                  />
+                  <input name="contact" placeholder="Contact Number" value={formData.contact} onChange={handleChange} className={getInputClass("contact")} />
                   {errors.contact && <p className="mt-1 text-sm text-red-500">{errors.contact}</p>}
                 </div>
 
                 <div className="md:col-span-2">
-                  <input
-                    name="address"
-                    placeholder="Address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    className={getInputClass("address")}
-                  />
+                  <input name="address" placeholder="Address" value={formData.address} onChange={handleChange} className={getInputClass("address")} />
                   {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address}</p>}
                 </div>
 
                 <div>
-                  <input
-                    name="eircode"
-                    placeholder="Eircode"
-                    value={formData.eircode}
-                    onChange={handleChange}
-                    className={getInputClass("eircode")}
-                  />
+                  <input name="eircode" placeholder="Eircode" value={formData.eircode} onChange={handleChange} className={getInputClass("eircode")} />
                   {errors.eircode && <p className="mt-1 text-sm text-red-500">{errors.eircode}</p>}
                 </div>
 
                 <div>
-                  <input
-                    name="ppsn"
-                    placeholder="PPSN"
-                    value={formData.ppsn}
-                    onChange={handleChange}
-                    className={getInputClass("ppsn")}
-                  />
+                  <input name="ppsn" placeholder="PPSN" value={formData.ppsn} onChange={handleChange} className={getInputClass("ppsn")} />
                   {errors.ppsn && <p className="mt-1 text-sm text-red-500">{errors.ppsn}</p>}
                 </div>
 
                 <div>
-                  <input
-                    name="schemeNumber"
-                    placeholder="Scheme Number"
-                    value={formData.schemeNumber}
-                    onChange={handleChange}
-                    className={getInputClass("schemeNumber")}
-                  />
+                  <input name="schemeNumber" placeholder="Scheme Number" value={formData.schemeNumber} onChange={handleChange} className={getInputClass("schemeNumber")} />
                   {errors.schemeNumber && <p className="mt-1 text-sm text-red-500">{errors.schemeNumber}</p>}
                 </div>
 
                 <div>
-                  <input
-                    type="date"
-                    name="dob"
-                    value={formData.dob}
-                    onChange={handleChange}
-                    className={getInputClass("dob")}
-                  />
+                  <input type="date" name="dob" value={formData.dob} onChange={handleChange} className={getInputClass("dob")} />
                   {errors.dob && <p className="mt-1 text-sm text-red-500">{errors.dob}</p>}
                 </div>
 
                 <div>
-                  <input
-                    value={age}
-                    readOnly
-                    placeholder="Age"
-                    className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none"
-                  />
+                  <input value={age} readOnly placeholder="Age" className="w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none" />
                 </div>
 
                 <div className="md:col-span-2">
@@ -501,13 +472,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex flex-wrap gap-4">
                     {["GMS", "DPS", "GP Visit", "Private"].map((scheme) => (
                       <label key={scheme} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="schemeType"
-                          value={scheme}
-                          checked={formData.schemeType === scheme}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="schemeType" value={scheme} checked={formData.schemeType === scheme} onChange={handleChange} />
                         {scheme}
                       </label>
                     ))}
@@ -520,13 +485,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Male", "Female"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="sex"
-                          value={option}
-                          checked={formData.sex === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="sex" value={option} checked={formData.sex === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -536,54 +495,26 @@ export default function ColdSoresConsultation() {
 
                 {isUnder16 && (
                   <div className="md:col-span-2">
-                    <input
-                      name="guardian"
-                      placeholder="Parent/Guardian Name (if patient under 16 years)"
-                      value={formData.guardian}
-                      onChange={handleChange}
-                      className={getInputClass("guardian")}
-                    />
+                    <input name="guardian" placeholder="Parent/Guardian Name (if patient under 16 years)" value={formData.guardian} onChange={handleChange} className={getInputClass("guardian")} />
                     {errors.guardian && <p className="mt-1 text-sm text-red-500">{errors.guardian}</p>}
                   </div>
                 )}
 
                 <div>
-                  <input
-                    name="gpName"
-                    placeholder="GP Name (Optional)"
-                    value={formData.gpName}
-                    onChange={handleChange}
-                    className={getInputClass("gpName")}
-                  />
+                  <input name="gpName" placeholder="GP Name (Optional)" value={formData.gpName} onChange={handleChange} className={getInputClass("gpName")} />
                 </div>
 
                 <div>
-                  <input
-                    name="gpContact"
-                    placeholder="GP Contact Number (Optional)"
-                    value={formData.gpContact}
-                    onChange={handleChange}
-                    className={getInputClass("gpContact")}
-                  />
+                  <input name="gpContact" placeholder="GP Contact Number (Optional)" value={formData.gpContact} onChange={handleChange} className={getInputClass("gpContact")} />
                 </div>
 
                 <div className="md:col-span-2">
-                  <input
-                    name="gpAddress"
-                    placeholder="GP Address (Optional)"
-                    value={formData.gpAddress}
-                    onChange={handleChange}
-                    className={getInputClass("gpAddress")}
-                  />
+                  <input name="gpAddress" placeholder="GP Address (Optional)" value={formData.gpAddress} onChange={handleChange} className={getInputClass("gpAddress")} />
                 </div>
               </div>
 
               <div className="mt-8 flex justify-end">
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">
                   Next
                 </button>
               </div>
@@ -600,13 +531,7 @@ export default function ColdSoresConsultation() {
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Document the symptoms of the presenting complaint as described by the patient
                   </label>
-                  <textarea
-                    name="symptoms"
-                    placeholder="Enter symptoms"
-                    value={formData.symptoms}
-                    onChange={handleChange}
-                    className={getInputClass("symptoms") + " h-32"}
-                  />
+                  <textarea name="symptoms" placeholder="Enter symptoms" value={formData.symptoms} onChange={handleChange} className={getInputClass("symptoms") + " h-32"} />
                   {errors.symptoms && <p className="mt-1 text-sm text-red-500">{errors.symptoms}</p>}
                 </div>
 
@@ -617,13 +542,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="medicationTried"
-                          value={option}
-                          checked={formData.medicationTried === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="medicationTried" value={option} checked={formData.medicationTried === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -633,33 +552,15 @@ export default function ColdSoresConsultation() {
 
                 {formData.medicationTried === "Yes" && (
                   <div>
-                    <textarea
-                      name="medicationList"
-                      placeholder="If yes, please list"
-                      value={formData.medicationList}
-                      onChange={handleChange}
-                      className={getInputClass("medicationList")}
-                    />
+                    <textarea name="medicationList" placeholder="If yes, please list" value={formData.medicationList} onChange={handleChange} className={getInputClass("medicationList")} />
                     {errors.medicationList && <p className="mt-1 text-sm text-red-500">{errors.medicationList}</p>}
                   </div>
                 )}
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -672,13 +573,7 @@ export default function ColdSoresConsultation() {
               <div className="space-y-6">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Existing Health Conditions</label>
-                  <textarea
-                    name="medicalConditions"
-                    placeholder="List existing health conditions"
-                    value={formData.medicalConditions}
-                    onChange={handleChange}
-                    className={getInputClass("medicalConditions") + " h-28"}
-                  />
+                  <textarea name="medicalConditions" placeholder="List existing health conditions" value={formData.medicalConditions} onChange={handleChange} className={getInputClass("medicalConditions") + " h-28"} />
                   {errors.medicalConditions && <p className="mt-1 text-sm text-red-500">{errors.medicalConditions}</p>}
                 </div>
 
@@ -706,13 +601,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="renalImpairment"
-                          value={option}
-                          checked={formData.renalImpairment === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="renalImpairment" value={option} checked={formData.renalImpairment === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -725,13 +614,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="hepaticImpairment"
-                          value={option}
-                          checked={formData.hepaticImpairment === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="hepaticImpairment" value={option} checked={formData.hepaticImpairment === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -741,25 +624,13 @@ export default function ColdSoresConsultation() {
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Allergy Status</label>
-                  <input
-                    name="allergyStatus"
-                    placeholder="Enter allergy status"
-                    value={formData.allergyStatus}
-                    onChange={handleChange}
-                    className={getInputClass("allergyStatus")}
-                  />
+                  <input name="allergyStatus" placeholder="Enter allergy status" value={formData.allergyStatus} onChange={handleChange} className={getInputClass("allergyStatus")} />
                   {errors.allergyStatus && <p className="mt-1 text-sm text-red-500">{errors.allergyStatus}</p>}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Existing Medication</label>
-                  <textarea
-                    name="existingMedication"
-                    placeholder="List existing medication"
-                    value={formData.existingMedication}
-                    onChange={handleChange}
-                    className={getInputClass("existingMedication") + " h-28"}
-                  />
+                  <textarea name="existingMedication" placeholder="List existing medication" value={formData.existingMedication} onChange={handleChange} className={getInputClass("existingMedication") + " h-28"} />
                   {errors.existingMedication && <p className="mt-1 text-sm text-red-500">{errors.existingMedication}</p>}
                 </div>
 
@@ -770,13 +641,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="antimicrobialResistance"
-                          value={option}
-                          checked={formData.antimicrobialResistance === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="antimicrobialResistance" value={option} checked={formData.antimicrobialResistance === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -787,33 +652,15 @@ export default function ColdSoresConsultation() {
                 {formData.antimicrobialResistance === "Yes" && (
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">If yes, please list</label>
-                    <textarea
-                      name="resistanceDetails"
-                      placeholder="Enter resistance details"
-                      value={formData.resistanceDetails}
-                      onChange={handleChange}
-                      className={getInputClass("resistanceDetails") + " h-24"}
-                    />
+                    <textarea name="resistanceDetails" placeholder="Enter resistance details" value={formData.resistanceDetails} onChange={handleChange} className={getInputClass("resistanceDetails") + " h-24"} />
                     {errors.resistanceDetails && <p className="mt-1 text-sm text-red-500">{errors.resistanceDetails}</p>}
                   </div>
                 )}
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -824,63 +671,37 @@ export default function ColdSoresConsultation() {
               <h2 className="mb-6 text-2xl font-semibold text-slate-900">Red Flag and Referral Criteria</h2>
 
               <div className="space-y-8">
-                {/* 4.1 Emergency */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-red-700">
-                    4.1 Criteria requiring EMERGENCY referral to hospital emergency department/contacting emergency
-                    services, as per 2.4.1 of Protocol.
+                    4.1 Criteria requiring EMERGENCY referral to hospital emergency department/contacting emergency services, as per 2.4.1 of Protocol.
                   </h3>
                   <label className="flex items-start gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="redFlagEmergency"
-                      checked={formData.redFlagEmergency}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span>
-                      Individual is systemically very unwell, or showing symptoms of severe/life-threatening infection,
-                      or systemic sepsis. Refer urgently to Emergency Department via ambulance.
-                    </span>
+                    <input type="checkbox" name="redFlagEmergency" checked={formData.redFlagEmergency} onChange={handleChange} className="mt-1" />
+                    <span>Individual is systemically very unwell, or showing symptoms of severe/life-threatening infection, or systemic sepsis. Refer urgently to Emergency Department via ambulance.</span>
                   </label>
                 </div>
 
-                {/* 4.2 Urgent */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-amber-700">
-                    4.2 Criteria requiring Urgent Medical Assessment (treating service/GP/GP out of hours/hospital
-                    emergency department), as per 2.4.2 of Protocol. If ANY of the following are present, then urgent
-                    medical assessment is required.
+                    4.2 Criteria requiring Urgent Medical Assessment (treating service/GP/GP out of hours/hospital emergency department), as per 2.4.2 of Protocol. If ANY of the following are present, then urgent medical assessment is required.
                   </h3>
                   <div className="space-y-3">
                     {[
                       { name: "urgentUnderOneMonth", label: "Individuals under 1 month of age" },
                       { name: "urgentEyeInvolvement", label: "Lesions involving the eye" },
-                      {
-                        name: "urgentImmunocompromised",
-                        label: "Individual has moderate to severe immunocompromise due to underlying medical conditions or treatments",
-                      },
+                      { name: "urgentImmunocompromised", label: "Individual has moderate to severe immunocompromise due to underlying medical conditions or treatments" },
                     ].map(({ name, label }) => (
                       <label key={name} className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          name={name}
-                          checked={formData[name]}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
+                        <input type="checkbox" name={name} checked={formData[name]} onChange={handleChange} className="mt-1" />
                         <span>{label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* 4.3 Referral - no prescribing */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-sky-700">
-                    4.3 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist
-                    permitted to give INITIAL LIMITED SUPPLY, as per 2.4.3 of protocol. If ANY of the following are
-                    present then referral is required and pharmacist prescribing is not permitted.
+                    4.3 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist permitted to give INITIAL LIMITED SUPPLY, as per 2.4.3 of protocol. If ANY of the following are present then referral is required and pharmacist prescribing is not permitted.
                   </h3>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {[
@@ -894,29 +715,19 @@ export default function ColdSoresConsultation() {
                       { name: "referralHypersensitivity", label: "Known hypersensitivity or adverse reaction to medication treatment options or components" },
                     ].map(({ name, label }) => (
                       <label key={name} className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          name={name}
-                          checked={formData[name]}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
+                        <input type="checkbox" name={name} checked={formData[name]} onChange={handleChange} className="mt-1" />
                         <span>{label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* 4.4 Limited supply */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-emerald-900">
-                    4.4 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist
-                    permitted to give INITIAL LIMITED SUPPLY, as per 2.4.4 of Protocol.
+                    4.4 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist permitted to give INITIAL LIMITED SUPPLY, as per 2.4.4 of Protocol.
                   </h3>
                   <h3 className="mb-3 text-lg font-semibold text-slate-900">
-                    Pharmacists can consider prescribing an initial limited supply of treatment if clinically
-                    appropriate to mitigate the risk of delay in access to treatment. Treatment should be limited to
-                    the dose or time necessary for an individual to access the referral pathway.
+                    Pharmacists can consider prescribing an initial limited supply of treatment if clinically appropriate to mitigate the risk of delay in access to treatment. Treatment should be limited to the dose or time necessary for an individual to access the referral pathway.
                   </h3>
                   <div className="space-y-3">
                     {[
@@ -924,34 +735,19 @@ export default function ColdSoresConsultation() {
                       { name: "limitedSupplyRecurrentLesions", label: "Recurrent problematic lesions or frequently recurrent infection" },
                     ].map(({ name, label }) => (
                       <label key={name} className="flex items-start gap-3 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          name={name}
-                          checked={formData[name]}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
+                        <input type="checkbox" name={name} checked={formData[name]} onChange={handleChange} className="mt-1" />
                         <span>{label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
-                {/* Red flag present? */}
                 <div>
-                  <p className="mb-2 text-sm font-medium text-slate-700">
-                    Are there any Red Flag or Referral Criteria present?
-                  </p>
+                  <p className="mb-2 text-sm font-medium text-slate-700">Are there any Red Flag or Referral Criteria present?</p>
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="redFlagPresent"
-                          value={option}
-                          checked={formData.redFlagPresent === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="redFlagPresent" value={option} checked={formData.redFlagPresent === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -966,13 +762,7 @@ export default function ColdSoresConsultation() {
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium text-slate-700">Reason for referral</label>
-                      <textarea
-                        name="referralReason"
-                        placeholder="Document reason for referral"
-                        value={formData.referralReason}
-                        onChange={handleChange}
-                        className={getInputClass("referralReason") + " h-24"}
-                      />
+                      <textarea name="referralReason" placeholder="Document reason for referral" value={formData.referralReason} onChange={handleChange} className={getInputClass("referralReason") + " h-24"} />
                       {errors.referralReason && <p className="mt-1 text-sm text-red-500">{errors.referralReason}</p>}
                     </div>
                   </>
@@ -980,20 +770,8 @@ export default function ColdSoresConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1047,13 +825,7 @@ export default function ColdSoresConsultation() {
                   <div className="flex gap-6">
                     {["Yes", "No"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="radio"
-                          name="symptomsTypical"
-                          value={option}
-                          checked={formData.symptomsTypical === option}
-                          onChange={handleChange}
-                        />
+                        <input type="radio" name="symptomsTypical" value={option} checked={formData.symptomsTypical === option} onChange={handleChange} />
                         {option}
                       </label>
                     ))}
@@ -1068,36 +840,16 @@ export default function ColdSoresConsultation() {
                     </div>
                     <div>
                       <label className="mb-2 block text-sm font-medium text-slate-700">Reason for referral</label>
-                      <textarea
-                        name="symptomsReferralReason"
-                        placeholder="Document reason for referral"
-                        value={formData.symptomsReferralReason}
-                        onChange={handleChange}
-                        className={getInputClass("symptomsReferralReason") + " h-24"}
-                      />
-                      {errors.symptomsReferralReason && (
-                        <p className="mt-1 text-sm text-red-500">{errors.symptomsReferralReason}</p>
-                      )}
+                      <textarea name="symptomsReferralReason" placeholder="Document reason for referral" value={formData.symptomsReferralReason} onChange={handleChange} className={getInputClass("symptomsReferralReason") + " h-24"} />
+                      {errors.symptomsReferralReason && <p className="mt-1 text-sm text-red-500">{errors.symptomsReferralReason}</p>}
                     </div>
                   </>
                 )}
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1109,31 +861,13 @@ export default function ColdSoresConsultation() {
 
               <div className="space-y-5">
                 {[
-                  {
-                    name: "meetsInclusionCriteria",
-                    label: "Individual meets the inclusion criteria as per protocol.",
-                    error: errors.meetsInclusionCriteria,
-                  },
-                  {
-                    name: "proceedWithPrescribing",
-                    label: "Appropriate to proceed with pharmacist prescribing and refer to protocol for prescribing information.",
-                    error: errors.proceedWithPrescribing,
-                  },
-                  {
-                    name: "adviceAndCounselling",
-                    label: "Give advice and counselling as per protocol.",
-                    error: errors.adviceAndCounselling,
-                  },
+                  { name: "meetsInclusionCriteria", label: "Individual meets the inclusion criteria as per protocol.", error: errors.meetsInclusionCriteria },
+                  { name: "proceedWithPrescribing", label: "Appropriate to proceed with pharmacist prescribing and refer to protocol for prescribing information.", error: errors.proceedWithPrescribing },
+                  { name: "adviceAndCounselling", label: "Give advice and counselling as per protocol.", error: errors.adviceAndCounselling },
                 ].map(({ name, label, error }) => (
                   <div key={name}>
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                      <input
-                        type="checkbox"
-                        name={name}
-                        checked={formData[name]}
-                        onChange={handleChange}
-                        className="mt-1"
-                      />
+                      <input type="checkbox" name={name} checked={formData[name]} onChange={handleChange} className="mt-1" />
                       <span>{label}</span>
                     </label>
                     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
@@ -1142,20 +876,8 @@ export default function ColdSoresConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1178,40 +900,18 @@ export default function ColdSoresConsultation() {
 
                 <div>
                   <label className="flex items-start gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="declarationClinicalInfoSharing"
-                      checked={formData.declarationClinicalInfoSharing}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span>
-                      I agree to the sharing of relevant clinical information with another healthcare professional if
-                      deemed necessary by the pharmacist.
-                    </span>
+                    <input type="checkbox" name="declarationClinicalInfoSharing" checked={formData.declarationClinicalInfoSharing} onChange={handleChange} className="mt-1" />
+                    <span>I agree to the sharing of relevant clinical information with another healthcare professional if deemed necessary by the pharmacist.</span>
                   </label>
-                  {errors.declarationClinicalInfoSharing && (
-                    <p className="mt-1 text-sm text-red-500">{errors.declarationClinicalInfoSharing}</p>
-                  )}
+                  {errors.declarationClinicalInfoSharing && <p className="mt-1 text-sm text-red-500">{errors.declarationClinicalInfoSharing}</p>}
                 </div>
 
                 <div>
                   <label className="flex items-start gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="declarationDispensingChoice"
-                      checked={formData.declarationDispensingChoice}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
-                    <span>
-                      I understand that I can have this prescription dispensed in this pharmacy or that I can choose to
-                      have it dispensed in another pharmacy of my choice.
-                    </span>
+                    <input type="checkbox" name="declarationDispensingChoice" checked={formData.declarationDispensingChoice} onChange={handleChange} className="mt-1" />
+                    <span>I understand that I can have this prescription dispensed in this pharmacy or that I can choose to have it dispensed in another pharmacy of my choice.</span>
                   </label>
-                  {errors.declarationDispensingChoice && (
-                    <p className="mt-1 text-sm text-red-500">{errors.declarationDispensingChoice}</p>
-                  )}
+                  {errors.declarationDispensingChoice && <p className="mt-1 text-sm text-red-500">{errors.declarationDispensingChoice}</p>}
                 </div>
 
                 <div>
@@ -1224,11 +924,7 @@ export default function ColdSoresConsultation() {
                         checked={formData.dispenseToAnotherPharmacy}
                         onChange={(e) => {
                           const checked = e.target.checked;
-                          setFormData((prev) => ({
-                            ...prev,
-                            dispenseToAnotherPharmacy: checked,
-                            dispenseInThisPharmacy: checked ? false : prev.dispenseInThisPharmacy,
-                          }));
+                          setFormData((prev) => ({ ...prev, dispenseToAnotherPharmacy: checked, dispenseInThisPharmacy: checked ? false : prev.dispenseInThisPharmacy }));
                         }}
                       />
                       <span>I am choosing to take my prescription to another pharmacy</span>
@@ -1240,11 +936,7 @@ export default function ColdSoresConsultation() {
                         checked={formData.dispenseInThisPharmacy}
                         onChange={(e) => {
                           const checked = e.target.checked;
-                          setFormData((prev) => ({
-                            ...prev,
-                            dispenseInThisPharmacy: checked,
-                            dispenseToAnotherPharmacy: checked ? false : prev.dispenseToAnotherPharmacy,
-                          }));
+                          setFormData((prev) => ({ ...prev, dispenseInThisPharmacy: checked, dispenseToAnotherPharmacy: checked ? false : prev.dispenseToAnotherPharmacy }));
                         }}
                       />
                       <span>I have chosen to have my prescription dispensed in this pharmacy</span>
@@ -1255,66 +947,30 @@ export default function ColdSoresConsultation() {
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-slate-700">
-                      Signature of person providing consent
-                    </label>
-                    <input
-                      name="consentSignature"
-                      placeholder="Type full name as signature"
-                      value={formData.consentSignature}
-                      onChange={handleChange}
-                      className={getInputClass("consentSignature")}
-                    />
+                    <label className="mb-2 block text-sm font-medium text-slate-700">Signature of person providing consent</label>
+                    <input name="consentSignature" placeholder="Type full name as signature" value={formData.consentSignature} onChange={handleChange} className={getInputClass("consentSignature")} />
                     {errors.consentSignature && <p className="mt-1 text-sm text-red-500">{errors.consentSignature}</p>}
                   </div>
 
                   {isUnder16 && (
                     <div className="md:col-span-2">
-                      <label className="mb-2 block text-sm font-medium text-slate-700">
-                        Signature of parent/guardian providing consent if child is under 16 years
-                      </label>
-                      <input
-                        name="guardianConsentSignature"
-                        placeholder="Type parent/guardian full name as signature"
-                        value={formData.guardianConsentSignature}
-                        onChange={handleChange}
-                        className={getInputClass("guardianConsentSignature")}
-                      />
-                      {errors.guardianConsentSignature && (
-                        <p className="mt-1 text-sm text-red-500">{errors.guardianConsentSignature}</p>
-                      )}
+                      <label className="mb-2 block text-sm font-medium text-slate-700">Signature of parent/guardian providing consent if child is under 16 years</label>
+                      <input name="guardianConsentSignature" placeholder="Type parent/guardian full name as signature" value={formData.guardianConsentSignature} onChange={handleChange} className={getInputClass("guardianConsentSignature")} />
+                      {errors.guardianConsentSignature && <p className="mt-1 text-sm text-red-500">{errors.guardianConsentSignature}</p>}
                     </div>
                   )}
 
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
-                    <input
-                      type="date"
-                      name="consentDate"
-                      value={formData.consentDate}
-                      onChange={handleChange}
-                      className={getInputClass("consentDate")}
-                    />
+                    <input type="date" name="consentDate" value={formData.consentDate} onChange={handleChange} className={getInputClass("consentDate")} />
                     {errors.consentDate && <p className="mt-1 text-sm text-red-500">{errors.consentDate}</p>}
                   </div>
                 </div>
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1339,34 +995,18 @@ export default function ColdSoresConsultation() {
                       </label>
                     ))}
                   </div>
-                  {errors.consultationOutcome && (
-                    <p className="mt-2 text-sm text-red-500">{errors.consultationOutcome}</p>
-                  )}
+                  {errors.consultationOutcome && <p className="mt-2 text-sm text-red-500">{errors.consultationOutcome}</p>}
                 </div>
 
                 <div>
                   <label className="flex items-start gap-3 text-sm text-slate-700">
-                    <input
-                      type="checkbox"
-                      name="declinedTreatment"
-                      checked={formData.declinedTreatment}
-                      onChange={handleChange}
-                      className="mt-1"
-                    />
+                    <input type="checkbox" name="declinedTreatment" checked={formData.declinedTreatment} onChange={handleChange} className="mt-1" />
                     <span>Patient has declined treatment, please give reason:</span>
                   </label>
                   {formData.declinedTreatment && (
-                    <textarea
-                      name="declinedTreatmentReason"
-                      placeholder="Enter reason"
-                      value={formData.declinedTreatmentReason}
-                      onChange={handleChange}
-                      className={getInputClass("declinedTreatmentReason") + " mt-3 h-24"}
-                    />
+                    <textarea name="declinedTreatmentReason" placeholder="Enter reason" value={formData.declinedTreatmentReason} onChange={handleChange} className={getInputClass("declinedTreatmentReason") + " mt-3 h-24"} />
                   )}
-                  {errors.declinedTreatmentReason && (
-                    <p className="mt-1 text-sm text-red-500">{errors.declinedTreatmentReason}</p>
-                  )}
+                  {errors.declinedTreatmentReason && <p className="mt-1 text-sm text-red-500">{errors.declinedTreatmentReason}</p>}
                 </div>
 
                 {formData.consultationOutcomeReferral && (
@@ -1383,75 +1023,35 @@ export default function ColdSoresConsultation() {
                         </label>
                       ))}
                       <label className="flex items-start gap-3 text-sm text-slate-700 md:col-span-2">
-                        <input
-                          type="checkbox"
-                          name="referredToOther"
-                          checked={formData.referredToOther}
-                          onChange={handleChange}
-                          className="mt-1"
-                        />
+                        <input type="checkbox" name="referredToOther" checked={formData.referredToOther} onChange={handleChange} className="mt-1" />
                         <span>Other (please specify)</span>
                       </label>
                     </div>
                     {formData.referredToOther && (
-                      <textarea
-                        name="referredToOtherDetails"
-                        placeholder="Specify other referral destination"
-                        value={formData.referredToOtherDetails}
-                        onChange={handleChange}
-                        className={getInputClass("referredToOtherDetails") + " mt-3 h-20"}
-                      />
+                      <textarea name="referredToOtherDetails" placeholder="Specify other referral destination" value={formData.referredToOtherDetails} onChange={handleChange} className={getInputClass("referredToOtherDetails") + " mt-3 h-20"} />
                     )}
                     {errors.referredTo && <p className="mt-2 text-sm text-red-500">{errors.referredTo}</p>}
-                    {errors.referredToOtherDetails && (
-                      <p className="mt-2 text-sm text-red-500">{errors.referredToOtherDetails}</p>
-                    )}
+                    {errors.referredToOtherDetails && <p className="mt-2 text-sm text-red-500">{errors.referredToOtherDetails}</p>}
                   </div>
                 )}
 
                 {formData.consultationOutcomePOMSupplied && (
                   <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
                     <h3 className="mb-4 text-lg font-semibold text-amber-800">8.2 Medicine Prescribed</h3>
-                    <p className="mb-4 text-sm text-slate-600">
-                      Please see Protocol and SPCs for dosage and notes for each individual medicinal product.
-                    </p>
+                    <p className="mb-4 text-sm text-slate-600">Please see Protocol and SPCs for dosage and notes for each individual medicinal product.</p>
                     <label className="flex items-start gap-3 text-sm text-slate-700">
-                      <input
-                        type="checkbox"
-                        name="prescribedAciclovirCream"
-                        checked={formData.prescribedAciclovirCream}
-                        onChange={handleChange}
-                        className="mt-1"
-                      />
-                      <span>
-                        Aciclovir 5% w/w cream, applied five times daily at approximately four hourly intervals
-                        omitting the night time application, for at least four days. If healing has not occurred,
-                        treatment may be continued for up to 10 days.
-                      </span>
+                      <input type="checkbox" name="prescribedAciclovirCream" checked={formData.prescribedAciclovirCream} onChange={handleChange} className="mt-1" />
+                      <span>Aciclovir 5% w/w cream, applied five times daily at approximately four hourly intervals omitting the night time application, for at least four days. If healing has not occurred, treatment may be continued for up to 10 days.</span>
                     </label>
-                    {errors.prescribedAciclovirCream && (
-                      <p className="mt-2 text-sm text-red-500">{errors.prescribedAciclovirCream}</p>
-                    )}
+                    {errors.prescribedAciclovirCream && <p className="mt-2 text-sm text-red-500">{errors.prescribedAciclovirCream}</p>}
                   </div>
                 )}
               </div>
 
-             <div className="mt-8 flex justify-between">
-              <button
-                type="button"
-                onClick={prevStep}
-                className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={nextStep}
-                className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-              >
-                Next Step
-              </button>
-            </div>
+              <div className="mt-8 flex justify-between">
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
+              </div>
             </div>
           )}
 
@@ -1464,95 +1064,40 @@ export default function ColdSoresConsultation() {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">First & Last Name</label>
-                    <input
-                      name="pharmacistName"
-                      placeholder="Enter pharmacist name"
-                      value={formData.pharmacistName}
-                      onChange={handleChange}
-                      className={getInputClass("pharmacistName")}
-                    />
+                    <input name="pharmacistName" placeholder="Enter pharmacist name" value={formData.pharmacistName} onChange={handleChange} className={getInputClass("pharmacistName")} />
                     {errors.pharmacistName && <p className="mt-1 text-sm text-red-500">{errors.pharmacistName}</p>}
                   </div>
-
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Pharmacy Address</label>
-                    <input
-                      name="pharmacyAddress"
-                      placeholder="Enter pharmacy address"
-                      value={formData.pharmacyAddress}
-                      onChange={handleChange}
-                      className={getInputClass("pharmacyAddress")}
-                    />
+                    <input name="pharmacyAddress" placeholder="Enter pharmacy address" value={formData.pharmacyAddress} onChange={handleChange} className={getInputClass("pharmacyAddress")} />
                     {errors.pharmacyAddress && <p className="mt-1 text-sm text-red-500">{errors.pharmacyAddress}</p>}
                   </div>
-
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">PSI No.</label>
-                    <input
-                      name="psiNumber"
-                      placeholder="Enter PSI number"
-                      value={formData.psiNumber}
-                      onChange={handleChange}
-                      className={getInputClass("psiNumber")}
-                    />
+                    <input name="psiNumber" placeholder="Enter PSI number" value={formData.psiNumber} onChange={handleChange} className={getInputClass("psiNumber")} />
                     {errors.psiNumber && <p className="mt-1 text-sm text-red-500">{errors.psiNumber}</p>}
                   </div>
-
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Eircode</label>
-                    <input
-                      name="pharmacyEircode"
-                      placeholder="Enter eircode"
-                      value={formData.pharmacyEircode}
-                      onChange={handleChange}
-                      className={getInputClass("pharmacyEircode")}
-                    />
+                    <input name="pharmacyEircode" placeholder="Enter eircode" value={formData.pharmacyEircode} onChange={handleChange} className={getInputClass("pharmacyEircode")} />
                     {errors.pharmacyEircode && <p className="mt-1 text-sm text-red-500">{errors.pharmacyEircode}</p>}
                   </div>
-
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Pharmacist Signature</label>
-                    <input
-                      name="pharmacistSignature"
-                      placeholder="Type full name as signature"
-                      value={formData.pharmacistSignature}
-                      onChange={handleChange}
-                      className={getInputClass("pharmacistSignature")}
-                    />
-                    {errors.pharmacistSignature && (
-                      <p className="mt-1 text-sm text-red-500">{errors.pharmacistSignature}</p>
-                    )}
+                    <input name="pharmacistSignature" placeholder="Type full name as signature" value={formData.pharmacistSignature} onChange={handleChange} className={getInputClass("pharmacistSignature")} />
+                    {errors.pharmacistSignature && <p className="mt-1 text-sm text-red-500">{errors.pharmacistSignature}</p>}
                   </div>
-
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-700">Date</label>
-                    <input
-                      type="date"
-                      name="pharmacistDate"
-                      value={formData.pharmacistDate}
-                      onChange={handleChange}
-                      className={getInputClass("pharmacistDate")}
-                    />
+                    <input type="date" name="pharmacistDate" value={formData.pharmacistDate} onChange={handleChange} className={getInputClass("pharmacistDate")} />
                     {errors.pharmacistDate && <p className="mt-1 text-sm text-red-500">{errors.pharmacistDate}</p>}
                   </div>
                 </div>
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1563,7 +1108,6 @@ export default function ColdSoresConsultation() {
               <h2 className="mb-6 text-2xl font-semibold text-slate-900">Consultation Overview</h2>
 
               <div className="space-y-6">
-
                 {/* 1. Personal Details */}
                 <div className="rounded-xl border border-slate-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">1. Personal Details</h3>
@@ -1581,9 +1125,7 @@ export default function ColdSoresConsultation() {
                     <p><span className="font-medium">GP Name:</span> {strDisplay(formData.gpName)}</p>
                     <p><span className="font-medium">GP Contact:</span> {strDisplay(formData.gpContact)}</p>
                     <p className="md:col-span-2"><span className="font-medium">GP Address:</span> {strDisplay(formData.gpAddress)}</p>
-                    {isUnder16 && (
-                      <p className="md:col-span-2"><span className="font-medium">Guardian:</span> {strDisplay(formData.guardian)}</p>
-                    )}
+                    {isUnder16 && <p className="md:col-span-2"><span className="font-medium">Guardian:</span> {strDisplay(formData.guardian)}</p>}
                   </div>
                 </div>
 
@@ -1636,7 +1178,7 @@ export default function ColdSoresConsultation() {
                   </div>
                 </div>
 
-                {/* 5. Review of Symptoms — show "-" for all if steps were skipped */}
+                {/* 5. Review of Symptoms */}
                 <div className="rounded-xl border border-slate-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">5. Review of Symptoms</h3>
                   <div className="space-y-3 text-sm text-slate-700">
@@ -1655,7 +1197,7 @@ export default function ColdSoresConsultation() {
                   </div>
                 </div>
 
-                {/* 6. Treatment Options — show "-" for all if steps were skipped */}
+                {/* 6. Treatment Options */}
                 <div className="rounded-xl border border-slate-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">6. Treatment Options</h3>
                   <div className="space-y-3 text-sm text-slate-700">
@@ -1675,9 +1217,7 @@ export default function ColdSoresConsultation() {
                     <p><span className="font-medium">Dispense In This Pharmacy:</span> {boolDisplay(formData.dispenseInThisPharmacy)}</p>
                     <p><span className="font-medium">Consent Signature:</span> {strDisplay(formData.consentSignature)}</p>
                     <p><span className="font-medium">Consent Date:</span> {strDisplay(formData.consentDate)}</p>
-                    {isUnder16 && (
-                      <p><span className="font-medium">Guardian Consent Signature:</span> {strDisplay(formData.guardianConsentSignature)}</p>
-                    )}
+                    {isUnder16 && <p><span className="font-medium">Guardian Consent Signature:</span> {strDisplay(formData.guardianConsentSignature)}</p>}
                   </div>
                 </div>
 
@@ -1715,27 +1255,15 @@ export default function ColdSoresConsultation() {
 
               {/* Final action buttons */}
               <div className="mt-8 flex flex-wrap justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
                   Back
                 </button>
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={handlePrintConsultation}
-                    className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                  >
+                  <button type="button" onClick={handlePrintConsultation} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
                     Print
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveAndFinish}
-                    className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
-                  >
-                    Save & Finish
+                  <button type="button" onClick={handleSaveAndFinish} className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700">
+                    {isEditMode ? "Save Changes" : "Save & Finish"}
                   </button>
                 </div>
               </div>
