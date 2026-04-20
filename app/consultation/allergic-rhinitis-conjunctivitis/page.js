@@ -2,19 +2,21 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export default function AllergicRhinitisConsultation() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id");
+  const isEditMode = searchParams.get("mode") === "edit";
 
   const [user, setUser] = useState(null);
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
-    // Step 1
     patientName: "",
     address: "",
     eircode: "",
@@ -29,12 +31,10 @@ export default function AllergicRhinitisConsultation() {
     gpAddress: "",
     gpContact: "",
 
-    // Step 2
     symptoms: "",
     medicationTried: "",
     medicationList: "",
 
-    // Step 3
     medicalConditions: "",
     pregnant: false,
     breastfeeding: false,
@@ -45,14 +45,12 @@ export default function AllergicRhinitisConsultation() {
     resistanceAware: "",
     resistanceDetails: "",
 
-    // Step 4
     emergencyFlags: [],
     referralFlags: [],
     limitedSupplyFlags: [],
     hasRedFlags: "",
     referralReason: "",
 
-    // Step 5
     symptomRhinorrhoea: false,
     symptomSneezing: false,
     symptomItchyNoseEyesPalate: false,
@@ -75,12 +73,10 @@ export default function AllergicRhinitisConsultation() {
     typicalConditionType: "",
     symptomsReferralReason: "",
 
-    // Step 6
     meetsInclusionCriteria: false,
     proceedWithPrescribing: false,
     adviceAndCounselling: false,
 
-    // Step 7
     declarationClinicalInfoSharing: false,
     declarationDispensingChoice: false,
     dispenseToAnotherPharmacy: false,
@@ -89,7 +85,6 @@ export default function AllergicRhinitisConsultation() {
     guardianConsentSignature: "",
     consentDate: new Date().toISOString().split("T")[0],
 
-    // Step 8
     outcomeReferral: false,
     outcomeSelfCare: false,
     outcomeOTCSupplied: false,
@@ -133,7 +128,6 @@ export default function AllergicRhinitisConsultation() {
     med_Ketotifen: false,
     med_OlopatadineEyeDrops: false,
 
-    // Step 9
     pharmacistName: "",
     psiNumber: "",
     pharmacistSignature: "",
@@ -150,7 +144,16 @@ export default function AllergicRhinitisConsultation() {
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUser(JSON.parse(storedUser));
-  }, [router]);
+
+    // ── Edit mode: load existing consultation data ──
+    if (isEditMode && editId) {
+      const stored = JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
+      const existing = stored.find((c) => String(c.id) === String(editId));
+      if (existing?.data) {
+        setFormData(existing.data);
+      }
+    }
+  }, [router, isEditMode, editId]);
 
   const age = useMemo(() => {
     if (!formData.dob) return "";
@@ -171,16 +174,13 @@ export default function AllergicRhinitisConsultation() {
 
   if (!user) return null;
 
-  // ── Display helpers ──────────────────────────────────────────────────────────
+  // ── Display helpers ───────────────────────────────────────────────────────────
 
-  // Checkboxes: checked = "Yes", unchecked = "-"
-  // Pass skipped=true for fields that were never seen due to step skip
   const boolDisplay = (value, skipped = false) => {
     if (skipped) return "-";
     return value ? "Yes" : "-";
   };
 
-  // String/radio fields: show value or "-"
   const strDisplay = (value) => value || "-";
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
@@ -326,7 +326,7 @@ export default function AllergicRhinitisConsultation() {
     return e;
   };
 
-  // ── Navigation ───────────────────────────────────────────────────────────────
+  // ── Navigation ────────────────────────────────────────────────────────────────
 
   const nextStep = () => {
     const validators = {
@@ -361,50 +361,47 @@ export default function AllergicRhinitisConsultation() {
     setStep((prev) => prev - 1);
   };
 
-  // ── Save ─────────────────────────────────────────────────────────────────────
+  // ── Save ──────────────────────────────────────────────────────────────────────
 
   const handleSaveAndFinish = () => {
     const existing = JSON.parse(localStorage.getItem("rxflowConsultations")) || [];
-    const newConsultation = {
-      id: Date.now(),
-      type: "Allergic Rhinitis & Allergic Conjunctivitis",
-      createdAt: new Date().toISOString(),
-      patientName: formData.patientName,
-      pharmacistName: formData.pharmacistName,
-      data: formData,
-    };
-    localStorage.setItem("rxflowConsultations", JSON.stringify([...existing, newConsultation]));
+
+    let updated;
+
+    if (isEditMode && editId) {
+      // Overwrite the existing record, preserve original createdAt
+      updated = existing.map((c) =>
+        String(c.id) === String(editId)
+          ? {
+              ...c,
+              patientName: formData.patientName,
+              pharmacistName: formData.pharmacistName,
+              data: formData,
+            }
+          : c
+      );
+    } else {
+      // Create a new record
+      updated = [
+        ...existing,
+        {
+          id: Date.now(),
+          type: "Allergic Rhinitis & Allergic Conjunctivitis",
+          createdAt: new Date().toISOString(),
+          patientName: formData.patientName,
+          pharmacistName: formData.pharmacistName,
+          data: formData,
+        },
+      ];
+    }
+
+    localStorage.setItem("rxflowConsultations", JSON.stringify(updated));
     router.push("/recent-consultations");
   };
 
   const handlePrintConsultation = () => window.print();
 
-  // ── Shared UI ────────────────────────────────────────────────────────────────
-
-  const NavButtons = ({ hideBack = false }) => (
-    <div className="mt-8 flex justify-between">
-      {!hideBack ? (
-        <button
-          type="button"
-          onClick={prevStep}
-          className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-        >
-          Back
-        </button>
-      ) : (
-        <div />
-      )}
-      <button
-        type="button"
-        onClick={nextStep}
-        className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-      >
-        {hideBack ? "Next" : "Next Step"}
-      </button>
-    </div>
-  );
-
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen bg-slate-100">
@@ -412,18 +409,27 @@ export default function AllergicRhinitisConsultation() {
 
       <div className="mx-auto max-w-6xl px-6 pt-6 md:px-10">
         <Link
-          href="/consultation"
+          href={isEditMode ? "/recent-consultations" : "/consultation"}
           className="inline-flex items-center gap-2 text-slate-600 font-medium transition hover:-translate-x-1 hover:text-sky-700"
         >
           <ArrowLeft size={18} />
-          <span className="text-sm">Back to Consultation Types</span>
+          <span className="text-sm">
+            {isEditMode ? "Back to Recent Consultations" : "Back to Consultation Types"}
+          </span>
         </Link>
       </div>
 
       <div className="mx-auto max-w-6xl p-6 md:p-10">
-        <h1 className="mb-6 text-4xl font-bold text-slate-900">
-          Allergic Rhinitis & Allergic Conjunctivitis
-        </h1>
+        <div className="mb-6 flex flex-wrap items-center gap-3">
+          <h1 className="text-4xl font-bold text-slate-900">
+            Allergic Rhinitis & Allergic Conjunctivitis
+          </h1>
+          {isEditMode && (
+            <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-700 border border-amber-200">
+              Editing
+            </span>
+          )}
+        </div>
 
         {/* Step indicators */}
         <div className="mb-8 flex flex-wrap gap-4 text-sm">
@@ -546,11 +552,7 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-end">
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">
                   Next
                 </button>
               </div>
@@ -595,20 +597,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -707,20 +697,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -731,7 +709,6 @@ export default function AllergicRhinitisConsultation() {
               <h2 className="mb-6 text-2xl font-semibold text-slate-900">Red Flag and Referral Criteria</h2>
 
               <div className="space-y-8">
-                {/* 4.1 Emergency */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-red-700">
                     4.1 Criteria requiring EMERGENCY referral to hospital emergency department, as per 2.4.1 of Protocol. If any of the following are present, then immediate referral needed.
@@ -752,7 +729,6 @@ export default function AllergicRhinitisConsultation() {
                   </div>
                 </div>
 
-                {/* 4.2 Referral - no prescribing */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-amber-700">
                     4.2 Criteria requiring referral to GP or other relevant medical practitioner, as per 2.4.2 of Protocol. If ANY of the following are present then referral is required and pharmacist prescribing is not permitted.
@@ -780,7 +756,6 @@ export default function AllergicRhinitisConsultation() {
                   </div>
                 </div>
 
-                {/* 4.3 Limited supply */}
                 <div>
                   <h3 className="mb-3 text-lg font-semibold text-sky-700">
                     4.3 Criteria requiring referral to GP or other relevant medical practitioner, but pharmacist permitted to give INITIAL LIMITED SUPPLY, as per 2.4.3 of protocol.
@@ -803,7 +778,6 @@ export default function AllergicRhinitisConsultation() {
                   </div>
                 </div>
 
-                {/* Red flag present? */}
                 <div>
                   <p className="mb-2 text-sm font-medium text-slate-700">Are there any Red Flag or Referral Criteria present?</p>
                   <div className="flex gap-6">
@@ -832,20 +806,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -951,20 +913,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -991,20 +941,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1103,20 +1041,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1187,7 +1113,6 @@ export default function AllergicRhinitisConsultation() {
                     <p className="mb-4 text-sm text-slate-600">Please see Protocol and SPCs for dosage and notes for each individual medicinal product.</p>
 
                     <div className="space-y-6">
-                      {/* Nasal Sprays */}
                       <div>
                         <h4 className="mb-3 font-semibold text-slate-900">Allergic Rhinitis – Nasal Sprays</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1224,7 +1149,6 @@ export default function AllergicRhinitisConsultation() {
                         </div>
                       </div>
 
-                      {/* Oral Antihistamines */}
                       <div>
                         <h4 className="mb-3 font-semibold text-slate-900">Allergic Rhinitis – Minimally sedating oral antihistamines</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1262,7 +1186,6 @@ export default function AllergicRhinitisConsultation() {
                         </div>
                       </div>
 
-                      {/* Eye Drops */}
                       <div>
                         <h4 className="mb-3 font-semibold text-slate-900">Allergic Conjunctivitis</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -1297,20 +1220,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1356,20 +1267,8 @@ export default function AllergicRhinitisConsultation() {
               </div>
 
               <div className="mt-8 flex justify-between">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800"
-                >
-                  Next Step
-                </button>
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">Back</button>
+                <button type="button" onClick={nextStep} className="rounded-lg bg-sky-700 px-6 py-3 font-medium text-white transition hover:bg-sky-800">Next Step</button>
               </div>
             </div>
           )}
@@ -1440,7 +1339,7 @@ export default function AllergicRhinitisConsultation() {
                   </div>
                 </div>
 
-                {/* 5. Review of Symptoms — all "-" if steps were skipped */}
+                {/* 5. Review of Symptoms */}
                 <div className="rounded-xl border border-slate-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">5. Review of Symptoms</h3>
                   <div className="space-y-3 text-sm text-slate-700">
@@ -1466,7 +1365,7 @@ export default function AllergicRhinitisConsultation() {
                   </div>
                 </div>
 
-                {/* 6. Treatment Options — all "-" if steps were skipped */}
+                {/* 6. Treatment Options */}
                 <div className="rounded-xl border border-slate-200 p-6">
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">6. Treatment Options</h3>
                   <div className="space-y-3 text-sm text-slate-700">
@@ -1556,27 +1455,15 @@ export default function AllergicRhinitisConsultation() {
 
               {/* Final action buttons */}
               <div className="mt-8 flex flex-wrap justify-between gap-4">
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                >
+                <button type="button" onClick={prevStep} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
                   Back
                 </button>
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={handlePrintConsultation}
-                    className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50"
-                  >
+                  <button type="button" onClick={handlePrintConsultation} className="rounded-lg border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-50">
                     Print
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveAndFinish}
-                    className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700"
-                  >
-                    Save & Finish
+                  <button type="button" onClick={handleSaveAndFinish} className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700">
+                    {isEditMode ? "Save Changes" : "Save & Finish"}
                   </button>
                 </div>
               </div>

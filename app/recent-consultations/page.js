@@ -127,7 +127,7 @@ Contact: ${consultation.data?.contact || "-"}
         return `/consultation/cold-sores?id=${consultation.id}&mode=edit`;
 
       case "Allergic Rhinitis & Allergic Conjunctivitis":
-        return `/consultation/allergic-rhinitis?id=${consultation.id}&mode=edit`;
+        return `/consultation/allergic-rhinitis-conjunctivitis?id=${consultation.id}&mode=edit`;
 
       default:
         return `/recent-consultations/${consultation.id}`;
