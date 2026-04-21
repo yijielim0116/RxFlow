@@ -68,10 +68,7 @@ export default function RecentConsultationsPage() {
     },
     { label: "Shingles", value: "Shingles Consultation" },
     { label: "Oral Thrush", value: "Oral Thrush Consultation" },
-    {
-      label: "Vulvovaginal Thrush",
-      value: "Vulvovaginal Thrush Consultation",
-    },
+    { label: "Vulvovaginal Thrush", value: "Vulvovaginal Thrush Consultation" },
     { label: "Impetigo", value: "Impetigo Consultation" },
     {
       label: "Uncomplicated Lower UTI (Cystitis)",
@@ -83,7 +80,6 @@ export default function RecentConsultationsPage() {
     const updatedConsultations = consultations.filter(
       (consultation) => consultation.id !== id
     );
-
     setConsultations(updatedConsultations);
     localStorage.setItem(
       "rxflowConsultations",
@@ -96,13 +92,10 @@ export default function RecentConsultationsPage() {
 Patient: ${consultation.patientName || "-"}
 Consultation Type: ${consultation.type || "-"}
 Pharmacist: ${consultation.pharmacistName || "-"}
-Date Saved: ${consultation.createdAt
-        ? new Date(consultation.createdAt).toLocaleString()
-        : "-"
-      }
+Date Saved: ${consultation.createdAt ? new Date(consultation.createdAt).toLocaleString() : "-"}
 PPSN: ${consultation.data?.ppsn || "-"}
 Contact: ${consultation.data?.contact || "-"}
-  `.trim();
+    `.trim();
 
     try {
       if (navigator.share) {
@@ -125,10 +118,8 @@ Contact: ${consultation.data?.contact || "-"}
     switch ((consultation.type || "").trim()) {
       case "Cold Sores Consultation":
         return `/consultation/cold-sores?id=${consultation.id}&mode=edit`;
-
       case "Allergic Rhinitis & Allergic Conjunctivitis":
         return `/consultation/allergic-rhinitis-conjunctivitis?id=${consultation.id}&mode=edit`;
-
       default:
         return `/recent-consultations/${consultation.id}`;
     }
@@ -141,8 +132,7 @@ Contact: ${consultation.data?.contact || "-"}
     return consultations.filter((consultation) => {
       const patientName = consultation.patientName?.toLowerCase().trim() || "";
       const type = consultation.type?.toLowerCase().trim() || "";
-      const pharmacistName =
-        consultation.pharmacistName?.toLowerCase().trim() || "";
+      const pharmacistName = consultation.pharmacistName?.toLowerCase().trim() || "";
       const ppsn = consultation.data?.ppsn?.toLowerCase().trim() || "";
       const contact = consultation.data?.contact?.toLowerCase().trim() || "";
 
@@ -212,25 +202,18 @@ Contact: ${consultation.data?.contact || "-"}
     switch ((type || "").trim()) {
       case "Cold Sores Consultation":
         return "bg-rose-50 text-rose-700 border border-rose-200";
-
       case "Allergic Rhinitis & Allergic Conjunctivitis":
         return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-
       case "Shingles Consultation":
         return "bg-violet-50 text-violet-700 border border-violet-200";
-
       case "Oral Thrush Consultation":
         return "bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200";
-
       case "Vulvovaginal Thrush Consultation":
         return "bg-pink-50 text-pink-700 border border-pink-200";
-
       case "Impetigo Consultation":
         return "bg-amber-50 text-amber-700 border border-amber-200";
-
       case "Uncomplicated Lower UTI (Cystitis) Consultation":
         return "bg-cyan-50 text-cyan-700 border border-cyan-200";
-
       default:
         return "bg-slate-50 text-slate-700 border border-slate-200";
     }
@@ -304,6 +287,7 @@ Contact: ${consultation.data?.contact || "-"}
           </div>
         ) : (
           <>
+            {/* ── Filters ── */}
             <div className="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr_1fr_auto]">
                 <div className="relative">
@@ -387,132 +371,134 @@ Contact: ${consultation.data?.contact || "-"}
                     key={consultation.id}
                     className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
                   >
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="mb-4 flex flex-wrap items-center gap-3">
-                          <h2
-                            className="text-2xl font-bold text-slate-900"
-                            dangerouslySetInnerHTML={{
-                              __html: highlightMatch(
-                                consultation.patientName || "Unnamed Patient"
-                              ),
-                            }}
-                          />
+                    {/* Patient name + type badge */}
+                    <div className="mb-4 flex flex-wrap items-center gap-3">
+                      <h2
+                        className="text-2xl font-bold text-slate-900"
+                        dangerouslySetInnerHTML={{
+                          __html: highlightMatch(
+                            consultation.patientName || "Unnamed Patient"
+                          ),
+                        }}
+                      />
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTypeBadgeClass(
+                          consultation.type
+                        )}`}
+                      >
+                        {getDisplayType(consultation.type)}
+                      </span>
+                    </div>
 
-                          <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTypeBadgeClass(
-                              consultation.type
-                            )}`}
-                          >
-                            {getDisplayType(consultation.type)}
+                    {/* Info grid — 5 columns: pharmacist, ppsn, contact, date, actions */}
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1fr_auto]">
+
+                      {/* Pharmacist */}
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <div className="mb-2 flex items-center gap-2 text-slate-500">
+                          <User size={16} />
+                          <span className="text-xs font-semibold uppercase tracking-wide">
+                            Pharmacist
                           </span>
                         </div>
-
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <div className="mb-2 flex items-center gap-2 text-slate-500">
-                              <User size={16} />
-                              <span className="text-xs font-semibold uppercase tracking-wide">
-                                Pharmacist
-                              </span>
-                            </div>
-                            <p
-                              className="text-sm font-medium text-slate-800"
-                              dangerouslySetInnerHTML={{
-                                __html: highlightMatch(
-                                  consultation.pharmacistName || "-"
-                                ),
-                              }}
-                            />
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <div className="mb-2 flex items-center gap-2 text-slate-500">
-                              <BadgePlus size={16} />
-                              <span className="text-xs font-semibold uppercase tracking-wide">
-                                PPSN
-                              </span>
-                            </div>
-                            <p
-                              className="text-sm font-medium text-slate-800"
-                              dangerouslySetInnerHTML={{
-                                __html: highlightMatch(
-                                  consultation.data?.ppsn || "-"
-                                ),
-                              }}
-                            />
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <div className="mb-2 flex items-center gap-2 text-slate-500">
-                              <Phone size={16} />
-                              <span className="text-xs font-semibold uppercase tracking-wide">
-                                Contact
-                              </span>
-                            </div>
-                            <p
-                              className="text-sm font-medium text-slate-800"
-                              dangerouslySetInnerHTML={{
-                                __html: highlightMatch(
-                                  consultation.data?.contact || "-"
-                                ),
-                              }}
-                            />
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <div className="mb-2 flex items-center gap-2 text-slate-500">
-                              <CalendarDays size={16} />
-                              <span className="text-xs font-semibold uppercase tracking-wide">
-                                Date Saved
-                              </span>
-                            </div>
-                            <p className="text-sm font-medium text-slate-800">
-                              {consultation.createdAt
-                                ? new Date(
-                                  consultation.createdAt
-                                ).toLocaleString()
-                                : "-"}
-                            </p>
-                          </div>
-                        </div>
+                        <p
+                          className="text-sm font-medium text-slate-800"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightMatch(
+                              consultation.pharmacistName || "-"
+                            ),
+                          }}
+                        />
                       </div>
 
-                      <div className="flex flex-row flex-wrap gap-3 lg:w-auto lg:flex-col">
+                      {/* PPSN */}
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <div className="mb-2 flex items-center gap-2 text-slate-500">
+                          <BadgePlus size={16} />
+                          <span className="text-xs font-semibold uppercase tracking-wide">
+                            PPSN
+                          </span>
+                        </div>
+                        <p
+                          className="text-sm font-medium text-slate-800"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightMatch(
+                              consultation.data?.ppsn || "-"
+                            ),
+                          }}
+                        />
+                      </div>
+
+                      {/* Contact */}
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <div className="mb-2 flex items-center gap-2 text-slate-500">
+                          <Phone size={16} />
+                          <span className="text-xs font-semibold uppercase tracking-wide">
+                            Contact
+                          </span>
+                        </div>
+                        <p
+                          className="text-sm font-medium text-slate-800"
+                          dangerouslySetInnerHTML={{
+                            __html: highlightMatch(
+                              consultation.data?.contact || "-"
+                            ),
+                          }}
+                        />
+                      </div>
+
+                      {/* Date Saved */}
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <div className="mb-2 flex items-center gap-2 text-slate-500">
+                          <CalendarDays size={16} />
+                          <span className="text-xs font-semibold uppercase tracking-wide">
+                            Date Saved
+                          </span>
+                        </div>
+                        <p className="text-sm font-medium text-slate-800">
+                          {consultation.createdAt
+                            ? new Date(consultation.createdAt).toLocaleString()
+                            : "-"}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="rounded-2xl bg-slate-50 p-4 flex items-center gap-2 flex-wrap min-w-fit">
                         <Link
                           href={`/recent-consultations/${consultation.id}`}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white p-3 text-slate-700 transition hover:bg-slate-100"
+                          title="View"
                         >
                           <Eye size={16} />
-                          View
                         </Link>
 
                         <Link
                           href={getEditLink(consultation)}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-medium text-white transition hover:bg-amber-600"
+                          className="inline-flex items-center justify-center rounded-xl bg-amber-500 p-3 text-white transition hover:bg-amber-600"
+                          title="Edit"
                         >
                           <Pencil size={16} />
-                          Edit
                         </Link>
 
                         <button
                           type="button"
                           onClick={() => handleShareConsultation(consultation)}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 py-3 text-sm font-medium text-white transition hover:bg-sky-800"
+                          className="inline-flex items-center justify-center rounded-xl bg-sky-700 p-3 text-white transition hover:bg-sky-800"
+                          title="Share"
                         >
                           <Share2 size={16} />
-                          Share
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleDeleteConsultation(consultation.id)}
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-red-700"
+                          className="inline-flex items-center justify-center rounded-xl bg-red-600 p-3 text-white transition hover:bg-red-700"
+                          title="Delete"
                         >
                           <Trash2 size={16} />
-                          Delete
                         </button>
                       </div>
+
                     </div>
                   </div>
                 ))}
