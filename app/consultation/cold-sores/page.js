@@ -28,6 +28,7 @@ export default function ColdSoresConsultation() {
     guardian: "",
     dob: "",
     sex: "",
+    otherSex: "", 
     gpName: "",
     gpAddress: "",
     gpContact: "",
@@ -174,10 +175,9 @@ export default function ColdSoresConsultation() {
   };
 
   const getInputClass = (fieldName) =>
-    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${
-      errors[fieldName]
-        ? "border-red-400 focus:ring-2 focus:ring-red-100"
-        : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
+    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${errors[fieldName]
+      ? "border-red-400 focus:ring-2 focus:ring-red-100"
+      : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
     }`;
 
   // ── Validators ───────────────────────────────────────────────────────────────
@@ -341,11 +341,11 @@ export default function ColdSoresConsultation() {
       updated = existing.map((c) =>
         String(c.id) === String(editId)
           ? {
-              ...c,
-              patientName: formData.patientName,
-              pharmacistName: formData.pharmacistName,
-              data: formData,
-            }
+            ...c,
+            patientName: formData.patientName,
+            pharmacistName: formData.pharmacistName,
+            data: formData,
+          }
           : c
       );
     } else {
@@ -482,14 +482,60 @@ export default function ColdSoresConsultation() {
 
                 <div className="md:col-span-2">
                   <p className="mb-2 text-sm font-medium text-slate-700">Sex</p>
-                  <div className="flex gap-6">
+
+                  <div className="flex flex-wrap items-center gap-6">
+
                     {["Male", "Female"].map((option) => (
                       <label key={option} className="flex items-center gap-2 text-sm text-slate-700">
-                        <input type="radio" name="sex" value={option} checked={formData.sex === option} onChange={handleChange} />
+                        <input
+                          type="radio"
+                          name="sex"
+                          value={option}
+                          checked={formData.sex === option}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              sex: e.target.value,
+                              otherSex: ""
+                            }))
+                          }
+                        />
                         {option}
                       </label>
                     ))}
+
+                    {/* Other with input */}
+                    <label className="flex items-center gap-2 text-sm text-slate-700">
+                      <input
+                        type="radio"
+                        name="sex"
+                        value="Other"
+                        checked={formData.sex === "Other"}
+                        onChange={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            sex: "Other"
+                          }))
+                        }
+                      />
+                      Other:
+                      <input
+                        type="text"
+                        placeholder="Please specify"
+                        value={formData.otherSex}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            otherSex: e.target.value
+                          }))
+                        }
+                        disabled={formData.sex !== "Other"}
+                        className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-sky-600 focus:ring-2 focus:ring-sky-100 disabled:bg-slate-100"
+                      />
+                    </label>
+
                   </div>
+
                   {errors.sex && <p className="mt-1 text-sm text-red-500">{errors.sex}</p>}
                 </div>
 
