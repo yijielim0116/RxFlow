@@ -212,10 +212,9 @@ export default function AllergicRhinitisConsultation() {
   };
 
   const getInputClass = (fieldName) =>
-    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${
-      errors[fieldName]
-        ? "border-red-400 focus:ring-2 focus:ring-red-100"
-        : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
+    `w-full rounded-lg border px-4 py-3 text-slate-900 placeholder-slate-400 outline-none transition ${errors[fieldName]
+      ? "border-red-400 focus:ring-2 focus:ring-red-100"
+      : "border-slate-300 focus:border-sky-600 focus:ring-2 focus:ring-sky-100"
     }`;
 
   // ── Validators ───────────────────────────────────────────────────────────────
@@ -373,11 +372,11 @@ export default function AllergicRhinitisConsultation() {
       updated = existing.map((c) =>
         String(c.id) === String(editId)
           ? {
-              ...c,
-              patientName: formData.patientName,
-              pharmacistName: formData.pharmacistName,
-              data: formData,
-            }
+            ...c,
+            patientName: formData.patientName,
+            pharmacistName: formData.pharmacistName,
+            data: formData,
+          }
           : c
       );
     } else {
